@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.8.1">
+  <bpmn:process id="loan-request-receival" name="Loan Request Receival" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" name="Loan Request Received">
+      <bpmn:outgoing>SequenceFlow_0qsnlyg</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_0qsnlyg" sourceRef="StartEvent_1" targetRef="CheckTheRequestId" />
+    <bpmn:endEvent id="EndEvent_1evqeev" name="Loan Request Processed">
+      <bpmn:incoming>SequenceFlow_0fx0ibc</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_0fx0ibc" sourceRef="CheckTheRequestId" targetRef="EndEvent_1evqeev" />
+    <bpmn:userTask id="CheckTheRequestId" name="Check the request">
+      <bpmn:incoming>SequenceFlow_0qsnlyg</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0fx0ibc</bpmn:outgoing>
+    </bpmn:userTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="loan-request-receival">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="160" y="66" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="152" y="102" width="53" height="36" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0qsnlyg_di" bpmnElement="SequenceFlow_0qsnlyg">
+        <di:waypoint xsi:type="dc:Point" x="196" y="84" />
+        <di:waypoint xsi:type="dc:Point" x="449" y="84" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="277.5" y="63" width="90" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_1evqeev_di" bpmnElement="EndEvent_1evqeev">
+        <dc:Bounds x="758" y="66" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="743" y="106" width="68" height="24" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0fx0ibc_di" bpmnElement="SequenceFlow_0fx0ibc">
+        <di:waypoint xsi:type="dc:Point" x="549" y="84" />
+        <di:waypoint xsi:type="dc:Point" x="758" y="84" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="608.5" y="63" width="90" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="UserTask_1tqhioy_di" bpmnElement="CheckTheRequestId">
+        <dc:Bounds x="449" y="44" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
