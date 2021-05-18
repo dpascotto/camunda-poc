@@ -12,7 +12,7 @@ import it.mapsgroup.segnaler.camunda.rest.client.SegnalERRestClient;
 
 @SpringBootApplication
 @EnableProcessApplication
-public class SegnalERStartApplication {
+public class SimpleSegnalERStartApplication {
 
 	@Autowired
 	private RuntimeService runtimeService;
@@ -37,7 +37,7 @@ public class SegnalERStartApplication {
 	public static void main(String[] args) {
 		System.out.println("[SegnalERStartApplication::main] Starting Camunda application...");
 		
-		SpringApplication.run(SegnalERStartApplication.class, args);
+		SpringApplication.run(SimpleSegnalERStartApplication.class, args);
 		
 		// Esegue la app client
 		System.out.println("[SegnalERStartApplication::main] Starting client application...");
