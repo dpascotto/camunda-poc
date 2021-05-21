@@ -56,7 +56,8 @@ public class SegnalERRestClient {
 	private static Task[] listTasks() {
 		Task[] tasks = listAllTasks();
 		for (Task task : tasks) {
-			System.out.println(task.id + " - " + task.name + " (process " + task.processDefinitionId + ") - " + (task.assignee != null ? "Assegnato a: " + task.assignee : "NON ASSEGNATO"));
+			System.out.println(task.id + " - " + task.name + " (process " + task.processDefinitionId + ") - " + (task.assignee != null ? "Assegnato a: " + task.assignee : "NON ASSEGNATO") + 
+					" - Nome Soggetto = " + task.nomeSoggetto);
 		}
 		return tasks;
 	}
@@ -70,6 +71,7 @@ public class SegnalERRestClient {
 		System.out.println("3 ..... Elenco dei task");
 		System.out.println("4 ..... Elenco degli utenti");
 		System.out.println("5 ..... Assegna task a un utente");
+		System.out.println("6 ..... Aggiorna task");
 		System.out.println("=============================================");
 		System.out.println();
 		System.out.println();
@@ -90,6 +92,8 @@ public class SegnalERRestClient {
 			listUsers();
 		} else if (choice.equals("5")) {
 			assignTaskToUser();
+		} else if (choice.equals("6")) {
+			updateTask();
 		} else {
 			System.err.println("Valore " + choice + " ignoto o non implementato");
 		}
@@ -131,7 +135,6 @@ public class SegnalERRestClient {
 	}
 
 	private static void assignTaskToUser() throws Exception {
-		// TODO Auto-generated method stub
 		String taskKey = readFromInputLine("Inserisci l'id del task: ");
 		String userId = readFromInputLine("Inserisci l'id dell'utente: ");
 		
@@ -211,5 +214,32 @@ public class SegnalERRestClient {
 		
 		return (Task[])JsonDataParser.parseArray(result, Task[].class);
 	}
+	
+	/*
+	 * https://docs.camunda.org/manual/7.3/api-references/rest/#task-update-a-task
+	 */
+	private static void updateTask() throws Exception {
+		// Aggiorno i campi custom del task del processo A1 (nomeSoggetto, segnalazione)
+		String taskId = readFromInputLine("Inserisci l'ID del task: ");
+		
+		Task task = getTaskById(taskId);
+		task.description = "Task aggiornato via API Java il " + new Date();
+		//task.nomeSoggetto = "Nome soggetto generato via API Java il " + new Date();
+		
+		restTemplate.postForEntity("http://localhost:8080/engine-rest/task/" + taskId + "/", task, null);
+		
+	}
+
+	private static Task getTaskById(String taskId) {
+		Task[] tasks = listAllTasks();
+		for (Task task : tasks) {
+			if (task.id.equals(taskId)) {
+				return task;
+			}
+		}
+		throw new RuntimeException("Task id " + taskId + " does not exist");
+	}
+
+
 
 }

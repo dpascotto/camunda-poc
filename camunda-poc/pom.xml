@@ -43,6 +43,12 @@
 		<artifactId>camunda-bpm-spring-boot-starter-rest</artifactId>
 		<version>${camunda.version}</version>
 	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-jdbc -->
+	<!-- https://forum.camunda.org/t/camunda-spring-boot-starter-ignores-spring-datasource-url-pointing-to-h2-file-based/7909 -->
+	<dependency>
+	    <groupId>org.springframework.boot</groupId>
+	    <artifactId>spring-boot-starter-jdbc</artifactId>
+	</dependency>
 	<dependency>
 		<groupId>com.h2database</groupId>
 		<artifactId>h2</artifactId>
@@ -63,6 +69,13 @@
 	    <artifactId>gson</artifactId>
 	    <version>2.8.6</version>
 	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
+	<dependency>
+	    <groupId>org.postgresql</groupId>
+	    <artifactId>postgresql</artifactId>
+	    <version>42.2.20</version>
+	</dependency>
+	
 	
   </dependencies>
 

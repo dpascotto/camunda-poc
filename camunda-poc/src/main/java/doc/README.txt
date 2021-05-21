@@ -23,6 +23,7 @@
  			- Aggiungere un metodo taggato come @EventListener in cui viene invocato:
  			  	runtimeService.startProcessInstanceByKey("loan-request-receival")
  			  (viene fatta partire un'istanza del task)
+ 	- Disabilitare (se necessario) il file /resources/application.properties (rinominandolo) per evitare che cerchi di agganciarsi a un DB 
  	- Eseguire il run, puntare a http://localhost:8080/, eseguire il login (demo/demo). Deve essere visibile un 
  	  task di nome Loan Request Receival. Per poterlo eseguire cliccare su 'Claim'. Se si clicca su 
  	  'Complete' il task risulta eseguito e sparisce dalla lista.
@@ -33,6 +34,15 @@
     	    it.mapsgroup.segnaler.camunda.demo.javaclass.ProcessRequestDelegate
      	- Nella class Java dichiarata implementazione dell'interfaccia JavaDelegate, necessario
      	  implementare il metodo execute
+ - Usare un DB
+ 	- Per passare alla versione che si attacca al DB, in application.yaml aggiunti il blocco spring.datasource (per
+ 	  ritornare alla in.memory eventualmente rinominalre il blocco aggiungendo .DISABLED). Al primo giro si mette
+ 	  schema-update: create-drop, poi si rinomina e si mette schema-update: false
+ 	- Aggiunta la property transaction-manager: org.springframework.jdbc.support.JdbcTransactionManager per aggirare un'eccezione
+ 	- è stato necessario aggiungere la dipendenza da spring-boot-starter-jdbc
+ 	  (https://forum.camunda.org/t/camunda-spring-boot-starter-ignores-spring-datasource-url-pointing-to-h2-file-based/7909)
+ 	- NB: non sono stato capace di puntare a una sottodirectory di Postgres dedicata (test), le tabelle sono state create 
+ 	  sotto 'public'
  		
  		
  	

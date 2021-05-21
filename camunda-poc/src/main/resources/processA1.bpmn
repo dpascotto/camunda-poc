@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.8.1">
   <bpmn:collaboration id="A1">
+    <bpmn:extensionElements>
+      <camunda:properties>
+        <camunda:property />
+      </camunda:properties>
+    </bpmn:extensionElements>
     <bpmn:participant id="Participant_1nwyekz" name="Processo A1" processRef="ProcessA1" />
   </bpmn:collaboration>
   <bpmn:process id="ProcessA1" isExecutable="true">
@@ -19,11 +24,10 @@
     <bpmn:startEvent id="StartEvent_1" name="Inserisce Segnalazione">
       <bpmn:outgoing>SequenceFlow_1gaeoun</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:userTask id="InserisciDatiSegnalazione" name="Inserisci Dati Segnalazione">
+    <bpmn:userTask id="InserisciDatiSegnalazione" name="Inserisci Dati Segnalazione" camunda:formKey="embedded:app:forms/inserisci-dati-segnalazione.html">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="nomeSoggetto" label="Nome Soggetto" type="string" />
-          <camunda:formField id="segnalazione" label="Segnalazione" type="string" />
+          <camunda:formField id="nomeSoggetto" label="Nome del soggetto" type="string" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_1gaeoun</bpmn:incoming>

@@ -9,5 +9,5 @@ public class Task {
 	
 	// Campi custom applicativo
 	public String nomeSoggetto;
-	public String segnalazione;
+	public String testoSegnalazione;
 }

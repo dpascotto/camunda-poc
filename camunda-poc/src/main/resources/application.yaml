@@ -5,3 +5,17 @@ camunda.bpm:
     firstName: Demo
   filter:
     create: All tasks
+  database:
+    BEGIN.schema-update: create-drop
+    schema-update: false
+    type: postgres
+    #schema-name: test
+    #table-prefix: test.
+transaction-manager: org.springframework.jdbc.support.JdbcTransactionManager
+spring.datasource:
+  url: "jdbc:postgresql://localhost:5433/"
+  username: postgres
+  password: password
+  driverClassName: org.postgresql.Driver
+
+  

@@ -1,0 +1,18 @@
+Usare PostgreSQL com DB
+=======================
+
+- Installazione pgAdmin (una volta)
+	- scaricato pgAdmin da https://www.postgresql.org/ftp/pgadmin/pgadmin4/v5.2/windows/
+	- installato in C:\Program Files\pgAdmin 4\v5
+	- eseguito C:\Program Files\pgAdmin 4\v5\runtime\pgAdmin.exe
+	- settata password = pgAdmin (user pgAdmin)
+- Start e connessione del postgres eistente (10)
+	- eseguito in "C:\Program Files\PostgreSQL\10\bin": postgres -D "C:\Program Files\PostgreSQL\10\data"
+	- connessione da pgAdmin come postgres/password (password indovinata = 'password')
+	- creazione in dbAdmin del connettore 'PostgreSQL (Generic) - localhost/password', jdbc url = jdbc:postgresql://localhost:5433/, user = postgres, password = password
+	- da pgAdmin creato un nuovo Login/group role di nome 'segnaler', password = 'segnaler', Can Login = Yes (NB non funzionava, usato l'esistente postgres/password)
+	- aggiornate le properties in application.properties
+	- ottenuto l'errore "Consider defining a bean of type 'org.springframework.transaction.PlatformTransactionManager' in your configuration" al primo run
+
+
+
