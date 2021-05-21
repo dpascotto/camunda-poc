@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
@@ -36,8 +37,14 @@ public class SegnalERRestClient {
 		
 		Task[] tasks = listTasks();
 		
-		createUser("level1", "Level", "One", "level1@my-mail.com");
-		createUser("level2", "Level", "Two", "level2@my-mail.com");
+		UserProfile[] users = listUsers();
+		
+		if (!_contains(users, "level1")) {
+			createUser("level1", "Level", "One", "level1@my-mail.com");
+		}
+		if (!_contains(users, "level2")) {
+			createUser("level2", "Level", "Two", "level2@my-mail.com");
+		}
 		
 		assignTask(tasks[0], "level1");
 		assignTask(tasks[1], "level2");
@@ -53,11 +60,26 @@ public class SegnalERRestClient {
 
 	}
 
+	private static boolean _contains(UserProfile[] users, String username) {
+		if (users == null || users.length == 0) {
+			return false;
+		}
+		
+		for (UserProfile up : users) {
+			if (up.id.equalsIgnoreCase(username)) {
+				System.out.println("User " + username + " already exists (" + up.id + ")");
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
 	private static Task[] listTasks() {
 		Task[] tasks = listAllTasks();
 		for (Task task : tasks) {
 			System.out.println(task.id + " - " + task.name + " (process " + task.processDefinitionId + ") - " + (task.assignee != null ? "Assegnato a: " + task.assignee : "NON ASSEGNATO") + 
-					" - Nome Soggetto = " + task.nomeSoggetto);
+					" - Business ID = " + task.businessId);
 		}
 		return tasks;
 	}
@@ -122,7 +144,7 @@ public class SegnalERRestClient {
 		}
 	}
 	
-	private static void listUsers() {
+	private static UserProfile[] listUsers() {
 		Map<String, String> vars = new HashMap<String, String>();
 		String result = restTemplate.getForObject("http://localhost:8080/engine-rest/user", String.class, vars);
 		
@@ -132,6 +154,8 @@ public class SegnalERRestClient {
 		for (UserProfile user : users) {
 			System.out.println("User id = " + user.id + ", name + surname = " + user.firstName + " " + user.lastName);
 		}
+		
+		return users;
 	}
 
 	private static void assignTaskToUser() throws Exception {
@@ -153,6 +177,7 @@ public class SegnalERRestClient {
 		user.userId = userId;
 		
 		try {
+			task.businessId = "businessId = " + new Date();
 			task.description = "Task " + task.id + " assigned to " + userId + " at " + new Date();
 			task.nomeSoggetto = "(Inserisci il nome del soggetto)";
 			restTemplate.put("http://localhost:8080/engine-rest/task/" + task.id + "/", task);

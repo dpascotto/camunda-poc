@@ -25,6 +25,8 @@ public class IdGeneratorDelegate implements JavaDelegate {
 		
 		System.out.println("ID generato: " + id);
 		
+		execution.setVariable("businessId", id);
+		
 	}
 
 }

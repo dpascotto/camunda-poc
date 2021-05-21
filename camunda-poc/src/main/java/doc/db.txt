@@ -12,7 +12,9 @@ Usare PostgreSQL com DB
 	- creazione in dbAdmin del connettore 'PostgreSQL (Generic) - localhost/password', jdbc url = jdbc:postgresql://localhost:5433/, user = postgres, password = password
 	- da pgAdmin creato un nuovo Login/group role di nome 'segnaler', password = 'segnaler', Can Login = Yes (NB non funzionava, usato l'esistente postgres/password)
 	- aggiornate le properties in application.properties
-	- ottenuto l'errore "Consider defining a bean of type 'org.springframework.transaction.PlatformTransactionManager' in your configuration" al primo run
+	- ottenuto l'errore "Consider defining a bean of type 'org.springframework.transaction.PlatformTransactionManager' in your configuration" al primo run,
+	  risolto mettendo la dipendenza da spring-boot-starter-jdbc, seguendo le indicazioni:
+	  https://forum.camunda.org/t/camunda-spring-boot-starter-ignores-spring-datasource-url-pointing-to-h2-file-based/7909
 
 
 

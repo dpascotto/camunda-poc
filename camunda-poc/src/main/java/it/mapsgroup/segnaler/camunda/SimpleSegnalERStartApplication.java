@@ -13,6 +13,11 @@ import it.mapsgroup.segnaler.camunda.rest.client.SegnalERRestClient;
 @SpringBootApplication
 @EnableProcessApplication
 public class SimpleSegnalERStartApplication {
+	
+//	@Bean
+//	public TaskDelegate taskDelegate() {
+//		return new TaskDelegate();
+//	}
 
 	@Autowired
 	private RuntimeService runtimeService;
@@ -25,6 +30,7 @@ public class SimpleSegnalERStartApplication {
 //		startProcess("ProcessA1"); 
 //		startProcess("ProcessA1"); 
 		// Se tutto è commentato OK, faccio partire i processi da SegnalERRestClient
+		
 	}
 
 	private void startProcess(String processKey) {
