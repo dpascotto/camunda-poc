@@ -12,8 +12,10 @@ public class TaskDelegate implements JavaDelegate {
 		
 		
 		Object businessId = execution.getVariable("businessId");
+		Object nomeSoggetto = execution.getVariable("nomeSoggetto");
+		Object testoSegnalazione = execution.getVariable("testoSegnalazione");
 		
-		execution.setVariable("testoSegnalazione", "Aggiornato il task businessId = " + businessId);
+		execution.setVariable("testoSegnalazione", "Aggiornato il task businessId = " + businessId + ", nome soggetto: " + nomeSoggetto + ", testo segnalazione: " + testoSegnalazione);
 		
 	}
 

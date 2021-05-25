@@ -11,6 +11,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import it.mapsgroup.segnaler.camunda.rest.client.vo.BasicUser;
+import it.mapsgroup.segnaler.camunda.rest.client.vo.CustomTaskAttributes;
+import it.mapsgroup.segnaler.camunda.rest.client.vo.CustomVariableValueAndType;
+import it.mapsgroup.segnaler.camunda.rest.client.vo.CustomVariables;
+import it.mapsgroup.segnaler.camunda.rest.client.vo.ProcessA1Request;
+import it.mapsgroup.segnaler.camunda.rest.client.vo.ProcessInstance;
+import it.mapsgroup.segnaler.camunda.rest.client.vo.ProcessRequest;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.Task;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.User;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.UserCredentials;
@@ -32,8 +38,8 @@ public class SegnalERRestClient {
 		restTemplate = new RestTemplate();
 		
 		// Faccio partire 2 istanze del processo ProcessA1
-		startProcess("ProcessA1");
-		startProcess("ProcessA1");
+		startProcessA1("Business key: assegnato a Pino", "Pino", "Pino, fai andare le cose");
+		startProcessA1("Business key: assegnato a Gino", "Gino", "Gino, controlla Pino");
 		
 		Task[] tasks = listTasks();
 		
@@ -81,19 +87,82 @@ public class SegnalERRestClient {
 			System.out.println(task.id + " - " + task.name + " (process " + task.processDefinitionId + ") - " + (task.assignee != null ? "Assegnato a: " + task.assignee : "NON ASSEGNATO") + 
 					" - Business ID = " + task.businessId);
 		}
+		System.out.println("Ci sono " + tasks.length + " task");
 		return tasks;
 	}
+	
+	private static void deleteTask() throws Exception {
+		String taskId = readFromInputLine("Inserisci l'id del task da cancellare (* per provare a cancellarli tutti): ");
+		int deleted = 0, notDeleted = 0;
+		
+		if (taskId.equals("*")) {
+			Task[] tasks = listAllTasks();
+			for (Task task : tasks) {
+				boolean ok =_deleteTaskById(task.id);
+				if (ok) deleted ++; else notDeleted ++;				
+			}
+			
+		} else {
+			boolean ok =_deleteTaskById(taskId);
+			if (ok) deleted ++; else notDeleted ++;
+		}
+
+		System.out.println("Task cancellati = " + deleted + ", task NON cancellati " + notDeleted);
+	}
+	
+	private static boolean _deleteTaskById(String taskId) {
+		try {
+			restTemplate.delete("http://localhost:8080/engine-rest/task/" + taskId);
+			
+			System.out.println("Cancellato il task " + taskId);
+			return true;
+		} catch (Exception e) {
+			System.err.println("Problema a cancellare il task " + taskId + ": " + e.getMessage());
+			return false;
+		}
+		
+	}
+	
+	private static void deleteProcessInstances() throws Exception {
+		ProcessInstance[] pis = listAllProcessInstances();
+		int deleted = 0, notDeleted = 0;
+
+		for (ProcessInstance pi : pis) {
+			boolean ok = _deleteProcessInstanceById(pi.id);
+			if (ok) deleted ++; else notDeleted ++;				
+		}
+
+		System.out.println("Istanze di processo cancellate = " + deleted + ", NON cancellate = " + notDeleted);
+
+	}
+	
+	private static boolean _deleteProcessInstanceById(String processInstanceId) {
+		try {
+			restTemplate.delete("http://localhost:8080/engine-rest/process-instance/" + processInstanceId);
+			
+			System.out.println("Cancellata la istanza processo " + processInstanceId);
+			return true;
+		} catch (Exception e) {
+			System.err.println("Problema a cancellare la istanza processo " + processInstanceId + ": " + e.getMessage());
+			return false;
+		}
+		
+	}
+	
+	
 	
 	public static boolean askForUserAction() throws Exception {
 		System.out.println();
 		System.out.println();
 		System.out.println("============= Possibili opzioni =============");
 		System.out.println("1 ..... Elenco dei processi");
-		System.out.println("2 ..... Fai partire un'istanza (task) del processo");
+		System.out.println("2 ..... Fai partire un'istanza (task) del processo ProcessA1");
 		System.out.println("3 ..... Elenco dei task");
 		System.out.println("4 ..... Elenco degli utenti");
 		System.out.println("5 ..... Assegna task a un utente");
 		System.out.println("6 ..... Aggiorna task");
+		System.out.println("7 ..... Cancella task(s)");
+		System.out.println("8 ..... Cancella tutte le istanze di processo");
 		System.out.println("=============================================");
 		System.out.println();
 		System.out.println();
@@ -107,7 +176,8 @@ public class SegnalERRestClient {
 		if (choice.equals("1")) {
 			listProcesses();
 		} else if (choice.equals("2")) {
-			_startProcess();
+			//_startProcess();
+			_startProcessA1();
 		} else if (choice.equals("3")) {
 			listTasks();
 		} else if (choice.equals("4")) {
@@ -116,6 +186,10 @@ public class SegnalERRestClient {
 			assignTaskToUser();
 		} else if (choice.equals("6")) {
 			updateTask();
+		} else if (choice.equals("7")) {
+			deleteTask();
+		} else if (choice.equals("8")) {
+			deleteProcessInstances();
 		} else {
 			System.err.println("Valore " + choice + " ignoto o non implementato");
 		}
@@ -179,7 +253,7 @@ public class SegnalERRestClient {
 		try {
 			task.businessId = "businessId = " + new Date();
 			task.description = "Task " + task.id + " assigned to " + userId + " at " + new Date();
-			task.nomeSoggetto = "(Inserisci il nome del soggetto)";
+			//task.nomeSoggetto = "(Inserisci il nome del soggetto)";
 			restTemplate.put("http://localhost:8080/engine-rest/task/" + task.id + "/", task);
 
 			restTemplate.postForEntity("http://localhost:8080/engine-rest/task/" + task.id + "/assignee", user, null);
@@ -215,20 +289,59 @@ public class SegnalERRestClient {
 	private static void _startProcess() throws Exception {
 		String taskKey = readFromInputLine("Inserisci la key del processo: ");
 		
-		startProcess(taskKey);
+		//startProcess(taskKey);
 		
 		System.out.println("Processo " + taskKey + " avviato");
 	}
 
-	/*
-	 * https://docs.camunda.org/manual/7.3/api-references/rest/#process-definition-start-process-instance
-	 */
-	private static void startProcess(String key) {
-		it.mapsgroup.segnaler.camunda.rest.client.vo.Process process = new it.mapsgroup.segnaler.camunda.rest.client.vo.Process();
+	private static void _startProcessA1() throws Exception {
 		
-		ResponseEntity<it.mapsgroup.segnaler.camunda.rest.client.vo.Process> response = restTemplate.postForEntity("http://localhost:8080/engine-rest/process-definition/key/" + key + "/start", process, null);
+		startProcessA1("Business key", "Nome soggetto generato ora", "Testo segnalazione generato ora");
+		
+		System.out.println("Processo A1 avviato");
 	}
 
+	/*
+	 * https://docs.camunda.org/manual/7.3/api-references/rest/#process-definition-start-process-instance
+	 * 
+	 *  id	String	The id of the process instance.
+		definitionId	String	The id of the process definition.
+		businessKey	String	The business key of the process instance.
+		caseInstanceId	String	The case instance id of the process instance.
+		tenantId	String	The tenant id of the process instance.
+		ended	Boolean	A flag indicating whether the instance is still running or not.
+		suspended	Boolean	A flag indicating whether the instance is suspended or not.
+		links	Object	A JSON array containing links to interact with the instance.
+	 */
+	private static void startProcess_OLD(String key, Task task) {
+		//it.mapsgroup.segnaler.camunda.rest.client.vo.Process process = new it.mapsgroup.segnaler.camunda.rest.client.vo.Process();
+		
+		//ProcessRequest processRequest = new ProcessRequest();
+		//processRequest.businessKey = task.businessKey;
+		//processRequest.variables = JsonFormatter.to
+		
+		//ResponseEntity<it.mapsgroup.segnaler.camunda.rest.client.vo.Process> response = restTemplate.postForEntity("http://localhost:8080/engine-rest/process-definition/key/" + key + "/start", processRequest, null);
+		
+		//System.out.println("Process created: " + response);
+	}
+
+	private static void startProcessA1(String bizKey, String nomeSoggetto, String testoSegnalazione) {
+		try {
+			String taskKey = "ProcessA1";
+			ProcessA1Request a1 = new ProcessA1Request();
+			
+			a1.businessKey = bizKey;
+			
+			a1.variables.nomeSoggetto = CustomVariableValueAndType.asString(nomeSoggetto);
+			a1.variables.testoSegnalazione = CustomVariableValueAndType.asString(testoSegnalazione);
+			a1.variables.eUnaFigata = CustomVariableValueAndType.asBoolean(true);
+
+			ResponseEntity<it.mapsgroup.segnaler.camunda.rest.client.vo.Process> response = restTemplate.postForEntity("http://localhost:8080/engine-rest/process-definition/key/" + taskKey + "/start", a1, null);
+			System.out.println("ProcessA1 created: " + response);
+		} catch (Exception e) {
+			System.err.println("Impossibile fare partire il processo A1: " + e.getMessage());
+		}
+	}
 
 	public static Task[] listAllTasks() {
 		Map<String, String> vars = new HashMap<String, String>();
@@ -238,6 +351,16 @@ public class SegnalERRestClient {
 		System.out.println(JsonFormatter.convertFlatJsonToFormattedJson(result));
 		
 		return (Task[])JsonDataParser.parseArray(result, Task[].class);
+	}
+	
+	public static ProcessInstance[] listAllProcessInstances() {
+		Map<String, String> vars = new HashMap<String, String>();
+		
+		String result = restTemplate.getForObject("http://localhost:8080/engine-rest/history/process-instance", String.class, vars);
+		
+		System.out.println(JsonFormatter.convertFlatJsonToFormattedJson(result));
+		
+		return (ProcessInstance[])JsonDataParser.parseArray(result, ProcessInstance[].class);
 	}
 	
 	/*

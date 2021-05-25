@@ -5,4 +5,7 @@ import it.mapsgroup.segnaler.camunda.service.CamundaVariable;
 public abstract class GenericVo {
 	@CamundaVariable(camundaName = "businessId", getExpression = "pirulino")
 	public String businessId;
+	
+	//public CustomVariables variables; 
+	
 }
