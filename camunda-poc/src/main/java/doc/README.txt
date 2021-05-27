@@ -36,13 +36,16 @@
      	  implementare il metodo execute
  - Usare un DB
  	- Per passare alla versione che si attacca al DB, in application.yaml aggiunti il blocco spring.datasource (per
- 	  ritornare alla in.memory eventualmente rinominalre il blocco aggiungendo .DISABLED). Al primo giro si mette
+ 	  ritornare alla in.memory eventualmente rinominare il blocco aggiungendo .DISABLED). Al primo giro si mette
  	  schema-update: create-drop, poi si rinomina e si mette schema-update: false
  	- Aggiunta la property transaction-manager: org.springframework.jdbc.support.JdbcTransactionManager per aggirare un'eccezione
  	- è stato necessario aggiungere la dipendenza da spring-boot-starter-jdbc
  	  (https://forum.camunda.org/t/camunda-spring-boot-starter-ignores-spring-datasource-url-pointing-to-h2-file-based/7909)
  	- NB: non sono stato capace di puntare a una sottodirectory di Postgres dedicata (test), le tabelle sono state create 
  	  sotto 'public'
+ 	- Fare partire PostgreSQL con il comando (ovviamente solo nel caso di DB locale):
+ 	       C:\Program Files\PostgreSQL\10\bin>pg_ctl.exe start -D ../data 
+ 	  (https://stackoverflow.com/questions/36629963/how-can-i-start-postgresql-on-windows)
  		
  		
  	

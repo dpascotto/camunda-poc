@@ -45,9 +45,9 @@ public class SimpleSegnalERStartApplication {
 		
 		SpringApplication.run(SimpleSegnalERStartApplication.class, args);
 		
-		// Esegue la app client
-		System.out.println("[SegnalERStartApplication::main] Starting client application...");
-		SegnalERRestClient.main(null);
+		// Esegue la app client (per eseguirla separatamente commentare le righe qui sotto)
+//		System.out.println("[SegnalERStartApplication::main] Starting client application...");
+//		SegnalERRestClient.main(null);
 
 	}
 }

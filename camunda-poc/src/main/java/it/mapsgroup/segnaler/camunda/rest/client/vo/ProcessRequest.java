@@ -6,5 +6,6 @@ package it.mapsgroup.segnaler.camunda.rest.client.vo;
 public abstract class ProcessRequest extends GenericVo {
 	public String businessKey;
 	
+	
 
 }

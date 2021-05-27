@@ -1,25 +1,43 @@
 package it.mapsgroup.segnaler.camunda.rest.client.vo;
 
+import it.mapsgroup.segnaler.camunda.rest.client.vo.variables.*;
+
+// http://localhost:8080/engine-rest/process-instance
+/*
+ *    {
+        "links": [],
+        "id": "801ffb68-bef0-11eb-9fe4-3ef8623e7f01",
+        "definitionId": "ProcessA1:10:ccb7c9c5-be2b-11eb-9fe4-3ef8623e7f01",
+        "businessKey": "Pippo",
+        "caseInstanceId": null,
+        "ended": false,
+        "suspended": false,
+        "tenantId": null
+    },
+
+ */
 public class Process {
 	public String id;
 	
-	@Deprecated
-	public String key;
+	public String definitionId;
 	
-	public String definitionId;	//String	The id of the process definition.
-	public String businessKey;	//	String	The business key of the process instance.
-	public String caseInstanceId;	//	String	The case instance id of the process instance.
-	public String tenantId;	//	String	The tenant id of the process instance.
-	public boolean ended;	//	Boolean	A flag indicating whether the instance is still running or not.
-	public boolean suspended;	//	Boolean	A flag indicating whether the instance is suspended or not.
-	public Object links;	//	Object	A JSON array containing links to interact with the instance.
+	public String businessKey;
 	
+	public boolean ended;
+	
+	public ProcessCustomVariables processCustomVariables;
+
 	@Override
 	public String toString() {
-		return "Process [id=" + id + ", key=" + key + ", definitionId=" + definitionId + ", businessKey=" + businessKey
-				+ ", caseInstanceId=" + caseInstanceId + ", tenantId=" + tenantId + ", ended=" + ended + ", suspended="
-				+ suspended + ", links=" + links + "]";
+		return "Process [id=" + id + ", definitionId=" + definitionId + ", businessKey=" + businessKey + ", ended="
+				+ ended + ", processCustomVariables=" + processCustomVariables + "]";
 	}
+
+
+
+	
+	
+	
 	
 	
 

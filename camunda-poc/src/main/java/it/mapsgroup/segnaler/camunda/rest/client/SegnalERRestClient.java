@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
@@ -21,6 +22,7 @@ import it.mapsgroup.segnaler.camunda.rest.client.vo.Task;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.User;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.UserCredentials;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.UserProfile;
+import it.mapsgroup.segnaler.camunda.rest.client.vo.variables.ProcessCustomVariables;
 import it.mapsgroup.segnaler.camunda.util.JsonDataParser;
 import it.mapsgroup.segnaler.camunda.util.JsonFormatter;
 
@@ -37,28 +39,32 @@ public class SegnalERRestClient {
 	public static void main(String[] args) {
 		restTemplate = new RestTemplate();
 		
-		// Faccio partire 2 istanze del processo ProcessA1
-		startProcessA1("Business key: assegnato a Pino", "Pino", "Pino, fai andare le cose");
-		startProcessA1("Business key: assegnato a Gino", "Gino", "Gino, controlla Pino");
+		boolean auto = false;
 		
-		Task[] tasks = listTasks();
-		
-		UserProfile[] users = listUsers();
-		
-		if (!_contains(users, "level1")) {
-			createUser("level1", "Level", "One", "level1@my-mail.com");
+		if (auto) {
+			// Faccio partire 2 istanze del processo ProcessA1
+			startProcessA1("Business key: assegnato a Pino", "Pino", "Pino, fai andare le cose", true);
+			startProcessA1("Business key: assegnato a Gino", "Gino", "Gino, controlla Pino", true);
+			
+			Task[] tasks = listTasks();
+			
+			UserProfile[] users = listUsers();
+			
+			if (!_contains(users, "level1")) {
+				createUser("level1", "Level", "One", "level1@my-mail.com");
+			}
+			if (!_contains(users, "level2")) {
+				createUser("level2", "Level", "Two", "level2@my-mail.com");
+			}
+			
+			assignTask(tasks[0], "level1");
+			assignTask(tasks[1], "level2");
 		}
-		if (!_contains(users, "level2")) {
-			createUser("level2", "Level", "Two", "level2@my-mail.com");
-		}
-		
-		assignTask(tasks[0], "level1");
-		assignTask(tasks[1], "level2");
 		
 		boolean stayIn = true;
 		while (stayIn) {
 			try {
-				stayIn = askForUserAction();
+				stayIn = mainAskForUserAction();
 			} catch (Exception e) {
 				System.err.println("Problemi a eseguire un task: " + e.getMessage());
 			}
@@ -81,13 +87,16 @@ public class SegnalERRestClient {
 		return false;
 	}
 
+	/*
+	 * Ritorna i task ATTIVI (delete_reason_ is null)
+	 */
 	private static Task[] listTasks() {
 		Task[] tasks = listAllTasks();
+		System.out.println("\r\n\r\n\r\nCi sono " + tasks.length + " task");
 		for (Task task : tasks) {
-			System.out.println(task.id + " - " + task.name + " (process " + task.processDefinitionId + ") - " + (task.assignee != null ? "Assegnato a: " + task.assignee : "NON ASSEGNATO") + 
-					" - Business ID = " + task.businessId);
+			System.out.println(task);
 		}
-		System.out.println("Ci sono " + tasks.length + " task");
+		System.out.println("Ecco stampati i " + tasks.length + " task");
 		return tasks;
 	}
 	
@@ -151,19 +160,19 @@ public class SegnalERRestClient {
 	
 	
 	
-	public static boolean askForUserAction() throws Exception {
+	public static boolean mainAskForUserAction() throws Exception {
 		System.out.println();
 		System.out.println();
-		System.out.println("============= Possibili opzioni =============");
-		System.out.println("1 ..... Elenco dei processi");
-		System.out.println("2 ..... Fai partire un'istanza (task) del processo ProcessA1");
-		System.out.println("3 ..... Elenco dei task");
+		System.out.println("============= Possibili opzioni ===================================================");
+		System.out.println("1 ..... Elenco dei processi ATTIVI (tutte le versioni)             [act_re_procdef]");
+		System.out.println("2 ..... Fai partire un'istanza del processo ProcessA1");
+		System.out.println("3 ..... Elenco dei task                                           [act_hi_taskinst]");       
 		System.out.println("4 ..... Elenco degli utenti");
 		System.out.println("5 ..... Assegna task a un utente");
 		System.out.println("6 ..... Aggiorna task");
 		System.out.println("7 ..... Cancella task(s)");
 		System.out.println("8 ..... Cancella tutte le istanze di processo");
-		System.out.println("=============================================");
+		System.out.println("===================================================================================");
 		System.out.println();
 		System.out.println();
 		
@@ -202,19 +211,74 @@ public class SegnalERRestClient {
 
 		System.out.print(hint);
 		String value = reader.readLine();
+		
+		if (value == null || value.equals("")) {
+			value = "Better use readFromInputLine(String hint, String defaultValue)";
+		}
 
 		return value;
 	}
 	
+	private static String readFromInputLine(String hint, String defaultValue) throws Exception {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+
+		System.out.print(hint);
+		String value = reader.readLine();
+		
+		if (value == null || value.equals("")) {
+			value = defaultValue;
+		}
+
+		return value;
+	}
+	
+	/*
+	    {
+        "id": "ProcessA1:8:60329a6a-ba49-11eb-8eaa-3ef8623e7f01",
+        "key": "ProcessA1",
+        "category": "http://bpmn.io/schema/bpmn",
+        "description": null,
+        "name": null,
+        "version": 8,
+        "resource": "processA1.bpmn",
+        "deploymentId": "5fdefc24-ba49-11eb-8eaa-3ef8623e7f01",
+        "diagram": null,
+        "suspended": false,
+        "tenantId": null,
+        "versionTag": null,
+        "historyTimeToLive": null,
+        "startableInTasklist": true
+    }
+	 */
 	private static void listProcesses() {
 		Map<String, String> vars = new HashMap<String, String>();
-		String result = restTemplate.getForObject("http://localhost:8080/engine-rest/process-definition", String.class, vars);
+		//String result = restTemplate.getForObject("http://localhost:8080/engine-rest/process-definition", String.class, vars);
+		String result = restTemplate.getForObject("http://localhost:8080/engine-rest/process-instance", String.class, vars);
 		
 		//System.out.println(JsonFormatter.convertFlatJsonToFormattedJson(result));
 		
 		it.mapsgroup.segnaler.camunda.rest.client.vo.Process[] processes = (it.mapsgroup.segnaler.camunda.rest.client.vo.Process[]) JsonDataParser.parseArray(result, it.mapsgroup.segnaler.camunda.rest.client.vo.Process[].class);
+		System.out.println("\r\n\r\n\r\nThere are " + processes.length + " ACTIVE processes");
 		for (it.mapsgroup.segnaler.camunda.rest.client.vo.Process process : processes) {
-			System.out.println("Process id = " + process.id + ", key = " + process.key);
+			//System.out.println("Process id = " + process.id + ", key = " + process.key);
+			//System.out.println(process);
+			
+			/*
+			 * Per ogni processo prendo le variabili
+			 */
+			String variables = restTemplate.getForObject("http://localhost:8080/engine-rest/process-instance/" + process.id + "/variables", String.class, vars);
+			ProcessCustomVariables customVariables = (ProcessCustomVariables)JsonDataParser.parseArray(variables, ProcessCustomVariables.class);
+			
+			process.processCustomVariables = customVariables;
+			//System.out.println(customVariables);
+		}
+		
+		// Loggo tutto (processi e variabili)
+		
+		System.out.println("\r\n\r\n\r\nThere are " + processes.length + " ACTIVE processes");
+		for (it.mapsgroup.segnaler.camunda.rest.client.vo.Process process : processes) {
+			System.out.println(process);
+			//System.out.println(process.processCustomVariables);
 		}
 	}
 	
@@ -222,7 +286,7 @@ public class SegnalERRestClient {
 		Map<String, String> vars = new HashMap<String, String>();
 		String result = restTemplate.getForObject("http://localhost:8080/engine-rest/user", String.class, vars);
 		
-		System.out.println(JsonFormatter.convertFlatJsonToFormattedJson(result));
+		//System.out.println(JsonFormatter.convertFlatJsonToFormattedJson(result));
 		
 		UserProfile[] users = (UserProfile[]) JsonDataParser.parseArray(result, UserProfile[].class);
 		for (UserProfile user : users) {
@@ -296,9 +360,20 @@ public class SegnalERRestClient {
 
 	private static void _startProcessA1() throws Exception {
 		
-		startProcessA1("Business key", "Nome soggetto generato ora", "Testo segnalazione generato ora");
+		String bk = readFromInputLine("Nome della business key", "Business Key " + _random(10, 99));
+		String ns = readFromInputLine("Nome Soggetto", "Nome " + _random(100, 999));
+		String ts = readFromInputLine("Testo della segnalazione", "Non è andata bene la " + _random(1000, 9999));
+		
+		startProcessA1(bk, ns, ts, true);
 		
 		System.out.println("Processo A1 avviato");
+	}
+
+	private static String _random(int low, int high) {
+		Random r = new Random();
+		int result = r.nextInt(high-low) + low;
+		
+		return "" + result;
 	}
 
 	/*
@@ -325,7 +400,7 @@ public class SegnalERRestClient {
 		//System.out.println("Process created: " + response);
 	}
 
-	private static void startProcessA1(String bizKey, String nomeSoggetto, String testoSegnalazione) {
+	private static void startProcessA1(String bizKey, String nomeSoggetto, String testoSegnalazione, boolean eUnaFigata) {
 		try {
 			String taskKey = "ProcessA1";
 			ProcessA1Request a1 = new ProcessA1Request();
@@ -334,7 +409,7 @@ public class SegnalERRestClient {
 			
 			a1.variables.nomeSoggetto = CustomVariableValueAndType.asString(nomeSoggetto);
 			a1.variables.testoSegnalazione = CustomVariableValueAndType.asString(testoSegnalazione);
-			a1.variables.eUnaFigata = CustomVariableValueAndType.asBoolean(true);
+			a1.variables.eUnaFigata = CustomVariableValueAndType.asBoolean(eUnaFigata);
 
 			ResponseEntity<it.mapsgroup.segnaler.camunda.rest.client.vo.Process> response = restTemplate.postForEntity("http://localhost:8080/engine-rest/process-definition/key/" + taskKey + "/start", a1, null);
 			System.out.println("ProcessA1 created: " + response);
@@ -348,7 +423,7 @@ public class SegnalERRestClient {
 		
 		String result = restTemplate.getForObject("http://localhost:8080/engine-rest/task", String.class, vars);
 		
-		System.out.println(JsonFormatter.convertFlatJsonToFormattedJson(result));
+		//System.out.println(JsonFormatter.convertFlatJsonToFormattedJson(result));
 		
 		return (Task[])JsonDataParser.parseArray(result, Task[].class);
 	}
