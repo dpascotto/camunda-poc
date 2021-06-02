@@ -21,12 +21,18 @@ public class IdGeneratorDelegate implements JavaDelegate {
 
 	@Override
 	public void execute(DelegateExecution execution) throws Exception {
-		String id = idGeneratorService.generateId();
+		String id = null;
 		
-		System.out.println("ID generato: " + id);
-		
+		String businessKey = execution.getBusinessKey();
+		if (businessKey != null && !businessKey.equals("") ) {
+			System.out.println("[IdGeneratorDelegate::execute] Business key già assegnata: " + businessKey);
+			id = businessKey;
+		} else {
+			id = idGeneratorService.generateId();
+			System.out.println("[IdGeneratorDelegate::execute] Business key / ID generato: " + id);
+		}
 		execution.setVariable("businessId", id);
-		
+		execution.setVariable("processType", "CARLETTO");
 	}
 
 }

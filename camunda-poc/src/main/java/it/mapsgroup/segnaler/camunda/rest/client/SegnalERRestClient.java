@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -12,16 +11,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import it.mapsgroup.segnaler.camunda.rest.client.vo.BasicUser;
-import it.mapsgroup.segnaler.camunda.rest.client.vo.CustomTaskAttributes;
-import it.mapsgroup.segnaler.camunda.rest.client.vo.CustomVariableValueAndType;
-import it.mapsgroup.segnaler.camunda.rest.client.vo.CustomVariables;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.ProcessA1Request;
+import it.mapsgroup.segnaler.camunda.rest.client.vo.ProcessA2Request;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.ProcessInstance;
-import it.mapsgroup.segnaler.camunda.rest.client.vo.ProcessRequest;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.Task;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.User;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.UserCredentials;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.UserProfile;
+import it.mapsgroup.segnaler.camunda.rest.client.vo.variables.CustomVariable;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.variables.ProcessCustomVariables;
 import it.mapsgroup.segnaler.camunda.util.JsonDataParser;
 import it.mapsgroup.segnaler.camunda.util.JsonFormatter;
@@ -165,7 +162,8 @@ public class SegnalERRestClient {
 		System.out.println();
 		System.out.println("============= Possibili opzioni ===================================================");
 		System.out.println("1 ..... Elenco dei processi ATTIVI (tutte le versioni)             [act_re_procdef]");
-		System.out.println("2 ..... Fai partire un'istanza del processo ProcessA1");
+		System.out.println("2.1 ... Fai partire un'istanza del processo ProcessA1");
+		System.out.println("2.2 ... Fai partire un'istanza del processo ProcessA2");
 		System.out.println("3 ..... Elenco dei task                                           [act_hi_taskinst]");       
 		System.out.println("4 ..... Elenco degli utenti");
 		System.out.println("5 ..... Assegna task a un utente");
@@ -184,9 +182,10 @@ public class SegnalERRestClient {
 		
 		if (choice.equals("1")) {
 			listProcesses();
-		} else if (choice.equals("2")) {
-			//_startProcess();
+		} else if (choice.equals("2.1")) {
 			_startProcessA1();
+		} else if (choice.equals("2.2")) {
+			_startProcessA2();
 		} else if (choice.equals("3")) {
 			listTasks();
 		} else if (choice.equals("4")) {
@@ -222,7 +221,7 @@ public class SegnalERRestClient {
 	private static String readFromInputLine(String hint, String defaultValue) throws Exception {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
-		System.out.print(hint);
+		System.out.print(hint + ": ");
 		String value = reader.readLine();
 		
 		if (value == null || value.equals("")) {
@@ -252,16 +251,11 @@ public class SegnalERRestClient {
 	 */
 	private static void listProcesses() {
 		Map<String, String> vars = new HashMap<String, String>();
-		//String result = restTemplate.getForObject("http://localhost:8080/engine-rest/process-definition", String.class, vars);
 		String result = restTemplate.getForObject("http://localhost:8080/engine-rest/process-instance", String.class, vars);
-		
-		//System.out.println(JsonFormatter.convertFlatJsonToFormattedJson(result));
 		
 		it.mapsgroup.segnaler.camunda.rest.client.vo.Process[] processes = (it.mapsgroup.segnaler.camunda.rest.client.vo.Process[]) JsonDataParser.parseArray(result, it.mapsgroup.segnaler.camunda.rest.client.vo.Process[].class);
 		System.out.println("\r\n\r\n\r\nThere are " + processes.length + " ACTIVE processes");
 		for (it.mapsgroup.segnaler.camunda.rest.client.vo.Process process : processes) {
-			//System.out.println("Process id = " + process.id + ", key = " + process.key);
-			//System.out.println(process);
 			
 			/*
 			 * Per ogni processo prendo le variabili
@@ -269,7 +263,7 @@ public class SegnalERRestClient {
 			String variables = restTemplate.getForObject("http://localhost:8080/engine-rest/process-instance/" + process.id + "/variables", String.class, vars);
 			ProcessCustomVariables customVariables = (ProcessCustomVariables)JsonDataParser.parseArray(variables, ProcessCustomVariables.class);
 			
-			process.processCustomVariables = customVariables;
+			process.variables = customVariables;
 			//System.out.println(customVariables);
 		}
 		
@@ -315,7 +309,7 @@ public class SegnalERRestClient {
 		user.userId = userId;
 		
 		try {
-			task.businessId = "businessId = " + new Date();
+			//task.businessId = "businessId = " + new Date();
 			task.description = "Task " + task.id + " assigned to " + userId + " at " + new Date();
 			//task.nomeSoggetto = "(Inserisci il nome del soggetto)";
 			restTemplate.put("http://localhost:8080/engine-rest/task/" + task.id + "/", task);
@@ -360,15 +354,29 @@ public class SegnalERRestClient {
 
 	private static void _startProcessA1() throws Exception {
 		
-		String bk = readFromInputLine("Nome della business key", "Business Key " + _random(10, 99));
-		String ns = readFromInputLine("Nome Soggetto", "Nome " + _random(100, 999));
-		String ts = readFromInputLine("Testo della segnalazione", "Non è andata bene la " + _random(1000, 9999));
+		String bk = readFromInputLine("Valore della business key", "Business Key " + _random(10, 99));
+//		String ns = readFromInputLine("Nome Soggetto", "Nome " + _random(100, 999));
+//		String ts = readFromInputLine("Testo della segnalazione", "Non è andata bene la " + _random(1000, 9999));
 		
-		startProcessA1(bk, ns, ts, true);
+		//startProcessA1(bk, ns, ts, true);
+		startProcessA1(bk, new ASimpleBusinessClass("Diego", "Pascotto", "Via Ferrara 7"));
 		
 		System.out.println("Processo A1 avviato");
 	}
+	
+	private static void _startProcessA2() throws Exception {
+		
+		String bk = readFromInputLine("Valore della business key", "Business Key " + _random(10, 99));
+		String nm = readFromInputLine("Nome", "Diego");
+		String sn = readFromInputLine("Cognome", "Pascotto");
+		String in = readFromInputLine("Indirizzo", "Via Senato, " + _random(10, 99) + ", 430" + _random(10, 99) + " Tarsogno (PR)");
 
+		startProcessA2(bk, new ASimpleBusinessClass(nm, sn, in));
+		
+		System.out.println("Processo A2 avviato");
+	}
+	
+	
 	private static String _random(int low, int high) {
 		Random r = new Random();
 		int result = r.nextInt(high-low) + low;
@@ -400,6 +408,7 @@ public class SegnalERRestClient {
 		//System.out.println("Process created: " + response);
 	}
 
+	@Deprecated
 	private static void startProcessA1(String bizKey, String nomeSoggetto, String testoSegnalazione, boolean eUnaFigata) {
 		try {
 			String taskKey = "ProcessA1";
@@ -407,14 +416,53 @@ public class SegnalERRestClient {
 			
 			a1.businessKey = bizKey;
 			
-			a1.variables.nomeSoggetto = CustomVariableValueAndType.asString(nomeSoggetto);
-			a1.variables.testoSegnalazione = CustomVariableValueAndType.asString(testoSegnalazione);
-			a1.variables.eUnaFigata = CustomVariableValueAndType.asBoolean(eUnaFigata);
+//			a1.variables.nomeSoggetto = CustomVariableValueAndType.asString(nomeSoggetto);
+//			a1.variables.testoSegnalazione = CustomVariableValueAndType.asString(testoSegnalazione);
+//			a1.variables.eUnaFigata = CustomVariableValueAndType.asBoolean(eUnaFigata);
 
 			ResponseEntity<it.mapsgroup.segnaler.camunda.rest.client.vo.Process> response = restTemplate.postForEntity("http://localhost:8080/engine-rest/process-definition/key/" + taskKey + "/start", a1, null);
 			System.out.println("ProcessA1 created: " + response);
 		} catch (Exception e) {
 			System.err.println("Impossibile fare partire il processo A1: " + e.getMessage());
+		}
+	}
+
+	private static void startProcessA1(String bizKey, Object myReadOnlyParameters) {
+		try {
+			String taskKey = "ProcessA1";
+			ProcessA1Request a1 = new ProcessA1Request();
+			
+			a1.businessKey = bizKey;
+			//a1.variables.businessInputAttributes = CustomVariableValueAndType.asString(ObjectToJson.toJson(myReadOnlyParameters));
+			
+			
+			ResponseEntity<it.mapsgroup.segnaler.camunda.rest.client.vo.Process> response = restTemplate.postForEntity("http://localhost:8080/engine-rest/process-definition/key/" + taskKey + "/start", a1, null);
+			System.out.println("ProcessA1 created: " + response);
+		} catch (Exception e) {
+			System.err.println("Impossibile fare partire il processo A1: " + e.getMessage());
+			e.printStackTrace();
+		}
+	}
+
+	private static void startProcessA2(String bizKey, Object myReadOnlyParameters) {
+		try {
+			String taskKey = "ProcessA2";
+			ProcessA2Request a2 = new ProcessA2Request();
+			
+			a2.businessKey = bizKey;
+			a2.variables.businessId = CustomVariable.asString("123");
+			//a2.processType = "A2";
+			//a2.variables.businessInputAttributes = CustomVariableValueAndType.asString(ObjectToJson.toJson(myReadOnlyParameters));
+			//a2.variables.processType = CustomVariableValueAndType.asString("Carletto");
+			a2.variables.processType = CustomVariable.asString("A2");
+			a2.variables.businessInputAttributes = CustomVariable.asString(myReadOnlyParameters.toString());
+			
+			
+			ResponseEntity<it.mapsgroup.segnaler.camunda.rest.client.vo.Process> response = restTemplate.postForEntity("http://localhost:8080/engine-rest/process-definition/key/" + taskKey + "/start", a2, null);
+			System.out.println("ProcessA2 created: " + response);
+		} catch (Exception e) {
+			System.err.println("Impossibile fare partire il processo A2: " + e.getMessage());
+			e.printStackTrace();
 		}
 	}
 
@@ -466,3 +514,26 @@ public class SegnalERRestClient {
 
 
 }
+
+
+class ASimpleBusinessClass {
+	
+	public ASimpleBusinessClass(String name, String surname, String address) {
+		super();
+		this.name = name;
+		this.surname = surname;
+		this.address = address;
+	}
+	public String name;
+	public String surname;
+	public String address;
+	@Override
+	public String toString() {
+		return "ASimpleBusinessClass [name=" + name + ", surname=" + surname + ", address=" + address + "]";
+	}
+	
+	
+}
+
+
+

@@ -7,7 +7,7 @@ camunda.bpm:
     create: All tasks
   database:
     BEGIN.schema-update: create-drop
-    schema-update: false
+    schema-update: true
     type: postgres
     #schema-name: test
     #table-prefix: test.
@@ -16,6 +16,9 @@ spring.datasource:
   url: "jdbc:postgresql://localhost:5433/"
   username: postgres
   password: password
+  COMMENTARE_IN_JSON_E_IMPOSSIBILE_url: "jdbc:postgresql://127.0.0.1:5432/segnalercamundadb"
+  COMMENTARE_IN_JSON_E_IMPOSSIBILE_username: segnalercamunda
+  COMMENTARE_IN_JSON_E_IMPOSSIBILE_password: segnalercamunda
   driverClassName: org.postgresql.Driver
 
   

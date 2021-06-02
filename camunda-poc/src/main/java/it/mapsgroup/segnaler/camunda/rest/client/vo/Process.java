@@ -25,12 +25,12 @@ public class Process {
 	
 	public boolean ended;
 	
-	public ProcessCustomVariables processCustomVariables;
+	public ProcessCustomVariables variables;
 
 	@Override
 	public String toString() {
 		return "Process [id=" + id + ", definitionId=" + definitionId + ", businessKey=" + businessKey + ", ended="
-				+ ended + ", processCustomVariables=" + processCustomVariables + "]";
+				+ ended + ", variables=" + variables + "]";
 	}
 
 

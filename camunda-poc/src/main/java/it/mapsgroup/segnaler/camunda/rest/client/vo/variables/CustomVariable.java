@@ -2,7 +2,25 @@ package it.mapsgroup.segnaler.camunda.rest.client.vo.variables;
 
 public class CustomVariable {
 	public String type;
-	public String value;
+	public Object value;
+	
+	public static CustomVariable asString(String value) {
+		
+		CustomVariable cv = new CustomVariable();
+		cv.value = value;
+		cv.type = "String";
+		
+		return cv;
+	}
+
+	public static CustomVariable asBoolean(boolean value) {
+		CustomVariable cv = new CustomVariable();
+		cv.value = value;
+		cv.type = "Boolean";
+		
+		return cv;
+	}
+
 	
 	public String toString() {
 		return value + " (" + type + ")";

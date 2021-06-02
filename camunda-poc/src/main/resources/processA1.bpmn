@@ -8,14 +8,14 @@
     </bpmn:extensionElements>
     <bpmn:participant id="Participant_1nwyekz" name="Processo A1" processRef="ProcessA1" />
   </bpmn:collaboration>
-  <bpmn:process id="ProcessA1" isExecutable="true">
+  <bpmn:process id="ProcessA1" name="Processo A1" isExecutable="true">
     <bpmn:laneSet>
       <bpmn:lane id="Lane_0zdtwvm" name="Livello 1">
         <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_02a1dto</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_0w4cs2h</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>InserisciDatiSegnalazione</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_0ql96el</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>ValidaDatiSegnalazione</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_0vwk006" name="Livello 2">
         <bpmn:flowNodeRef>EndEvent_1ixumh1</bpmn:flowNodeRef>
@@ -30,7 +30,7 @@
       <bpmn:incoming>Flow_0f2swlp</bpmn:incoming>
       <bpmn:outgoing>Flow_15by1p4</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:sequenceFlow id="SequenceFlow_1jhqodb" sourceRef="Activity_0ql96el" targetRef="Task_0gxndmw" />
+    <bpmn:sequenceFlow id="SequenceFlow_1jhqodb" sourceRef="ValidaDatiSegnalazione" targetRef="Task_0gxndmw" />
     <bpmn:sequenceFlow id="SequenceFlow_0cp30xp" sourceRef="Task_0gxndmw" targetRef="EndEvent_1ixumh1" />
     <bpmn:sequenceFlow id="Flow_0f2swlp" sourceRef="InserisciDatiSegnalazione" targetRef="Task_02a1dto" />
     <bpmn:serviceTask id="Task_0w4cs2h" name="Assegna ID" camunda:class="it.mapsgroup.segnaler.camunda.delegate.IdGeneratorDelegate">
@@ -47,11 +47,11 @@
       <bpmn:incoming>Flow_1wpwfww</bpmn:incoming>
       <bpmn:outgoing>Flow_0f2swlp</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:serviceTask id="Activity_0ql96el" name="Valida" camunda:class="it.mapsgroup.segnaler.camunda.delegate.TaskDelegate">
+    <bpmn:serviceTask id="ValidaDatiSegnalazione" name="Valida" camunda:class="it.mapsgroup.segnaler.camunda.delegate.TaskDelegate">
       <bpmn:incoming>Flow_15by1p4</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1jhqodb</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="Flow_15by1p4" sourceRef="Task_02a1dto" targetRef="Activity_0ql96el" />
+    <bpmn:sequenceFlow id="Flow_15by1p4" sourceRef="Task_02a1dto" targetRef="ValidaDatiSegnalazione" />
     <bpmn:endEvent id="EndEvent_1ixumh1">
       <bpmn:incoming>SequenceFlow_0cp30xp</bpmn:incoming>
     </bpmn:endEvent>
@@ -71,6 +71,18 @@
       <bpmndi:BPMNShape id="Lane_0zdtwvm_di" bpmnElement="Lane_0zdtwvm" isHorizontal="true">
         <dc:Bounds x="153" y="82" width="877" height="125" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_15by1p4_di" bpmnElement="Flow_15by1p4">
+        <di:waypoint x="708" y="138" />
+        <di:waypoint x="760" y="138" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1wpwfww_di" bpmnElement="Flow_1wpwfww">
+        <di:waypoint x="390" y="138" />
+        <di:waypoint x="440" y="138" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0f2swlp_di" bpmnElement="Flow_0f2swlp">
+        <di:waypoint x="540" y="138" />
+        <di:waypoint x="608" y="138" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0cp30xp_di" bpmnElement="SequenceFlow_0cp30xp">
         <di:waypoint x="860" y="264" />
         <di:waypoint x="962" y="264" />
@@ -92,18 +104,6 @@
           <dc:Bounds x="281" y="117" width="0" height="12" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0f2swlp_di" bpmnElement="Flow_0f2swlp">
-        <di:waypoint x="540" y="138" />
-        <di:waypoint x="608" y="138" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1wpwfww_di" bpmnElement="Flow_1wpwfww">
-        <di:waypoint x="390" y="138" />
-        <di:waypoint x="440" y="138" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_15by1p4_di" bpmnElement="Flow_15by1p4">
-        <di:waypoint x="708" y="138" />
-        <di:waypoint x="760" y="138" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="213" y="120" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -119,7 +119,7 @@
       <bpmndi:BPMNShape id="UserTask_07kso30_di" bpmnElement="InserisciDatiSegnalazione">
         <dc:Bounds x="440" y="98" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1nf377r_di" bpmnElement="Activity_0ql96el">
+      <bpmndi:BPMNShape id="Activity_1nf377r_di" bpmnElement="ValidaDatiSegnalazione">
         <dc:Bounds x="760" y="98" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="EndEvent_1ixumh1_di" bpmnElement="EndEvent_1ixumh1">

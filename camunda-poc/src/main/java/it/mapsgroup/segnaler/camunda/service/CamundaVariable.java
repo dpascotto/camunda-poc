@@ -7,6 +7,7 @@ import java.lang.annotation.Target;
 
 @Target(value = {ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
+@Deprecated
 public @interface CamundaVariable {
 	public String camundaName() default "";
 	public String getExpression() default "";
