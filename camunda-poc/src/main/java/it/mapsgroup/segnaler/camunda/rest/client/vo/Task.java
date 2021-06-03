@@ -37,27 +37,13 @@ public class Task extends ProcessRequest {
 	
 	// act_ru_task.create_time_
 	public String created;
-	
-	
-	
-	// Campi custom applicativo
-	@Deprecated // ha senso solo su Process
-	public CustomTaskAttributes variables = new CustomTaskAttributes();
 
 	@Override
 	public String toString() {
 		return "Task [id=" + id + ", executionId=" + executionId + ", processInstanceId=" + processInstanceId
 				+ ", processDefinitionId=" + processDefinitionId + ", name=" + name + ", description=" + description
-				+ ", taskDefinitionKey=" + taskDefinitionKey + ", assignee=" + assignee + ", created=" + created
-				+ ", variables=" + variables + "]";
+				+ ", taskDefinitionKey=" + taskDefinitionKey + ", assignee=" + assignee + ", created=" + created + "]";
 	}
-
-
-
-
-
-
-
 
 
 
@@ -67,9 +53,6 @@ public class Task extends ProcessRequest {
 		
 		Task task = new Task();
 		task.description = "descizione-del-task";
-		
-		task.variables.nomeSoggetto = CustomVariableValueAndType.asString("proverbi-famosi-storpiati");
-		task.variables.testoSegnalazione = CustomVariableValueAndType.asString("Tanto va la gatta al largo che la recupera il bagnino");
 		
 		
 		String json = ObjectToJson.toJson(task);
