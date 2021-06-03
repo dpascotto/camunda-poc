@@ -18,7 +18,6 @@ import it.mapsgroup.segnaler.camunda.rest.client.vo.Task;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.User;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.UserCredentials;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.UserProfile;
-import it.mapsgroup.segnaler.camunda.rest.client.vo.variables.CustomVariable;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.variables.ProcessCustomVariables;
 import it.mapsgroup.segnaler.camunda.util.JsonDataParser;
 import it.mapsgroup.segnaler.camunda.util.JsonFormatter;
@@ -414,7 +413,7 @@ public class SegnalERRestClient {
 			String taskKey = "ProcessA1";
 			ProcessA1Request a1 = new ProcessA1Request();
 			
-			a1.businessKey = bizKey;
+//			a1.businessKey = bizKey;
 			
 //			a1.variables.nomeSoggetto = CustomVariableValueAndType.asString(nomeSoggetto);
 //			a1.variables.testoSegnalazione = CustomVariableValueAndType.asString(testoSegnalazione);
@@ -432,7 +431,7 @@ public class SegnalERRestClient {
 			String taskKey = "ProcessA1";
 			ProcessA1Request a1 = new ProcessA1Request();
 			
-			a1.businessKey = bizKey;
+//			a1.businessKey = bizKey;
 			//a1.variables.businessInputAttributes = CustomVariableValueAndType.asString(ObjectToJson.toJson(myReadOnlyParameters));
 			
 			
@@ -444,18 +443,13 @@ public class SegnalERRestClient {
 		}
 	}
 
-	private static void startProcessA2(String bizKey, Object myReadOnlyParameters) {
+	private static void startProcessA2(String nativeObjectId, Object myReadOnlyParameters) {
 		try {
 			String taskKey = "ProcessA2";
-			ProcessA2Request a2 = new ProcessA2Request();
+			ProcessA2Request a2 = new ProcessA2Request(nativeObjectId);
 			
-			a2.businessKey = bizKey;
-			a2.variables.businessId = CustomVariable.asString("123");
-			//a2.processType = "A2";
-			//a2.variables.businessInputAttributes = CustomVariableValueAndType.asString(ObjectToJson.toJson(myReadOnlyParameters));
-			//a2.variables.processType = CustomVariableValueAndType.asString("Carletto");
-			a2.variables.processType = CustomVariable.asString("A2");
-			a2.variables.businessInputAttributes = CustomVariable.asString(myReadOnlyParameters.toString());
+			a2.setProcessType("A2");
+			a2.setBusinessInputAttributes(myReadOnlyParameters.toString());
 			
 			
 			ResponseEntity<it.mapsgroup.segnaler.camunda.rest.client.vo.Process> response = restTemplate.postForEntity("http://localhost:8080/engine-rest/process-definition/key/" + taskKey + "/start", a2, null);

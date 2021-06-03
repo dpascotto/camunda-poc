@@ -1,19 +1,56 @@
 package it.mapsgroup.segnaler.camunda.rest.client.vo;
 
-import it.mapsgroup.segnaler.camunda.service.CamundaVariable;
+import it.mapsgroup.segnaler.camunda.rest.client.vo.variables.CustomVariable;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.variables.ProcessCustomVariables;
+
+// TODO mettere nel commento se questa serve solo all'INSTANZIAMENTO del Process (a differenza della classe Process
+// che dovrebbe corrispondere al solo output)
 
 /*
  * https://docs.camunda.org/manual/7.15/reference/rest/process-definition/post-start-process-instance/
  */
-public abstract class ProcessRequest extends GenericVo {
-	public String businessKey;
+public class ProcessRequest extends GenericRequest {
+	/*
+	 * From https://docs.camunda.org/manual/7.15/reference/rest/process-definition/post-start-process-instance/
+	 * :
+	 * The business key the process instance is to be initialized with. 
+	 * The business key uniquely identifies the process instance in the context of the given process definition.
+	 */
+	private String businessKey;
+		
+	private ProcessCustomVariables variables = new ProcessCustomVariables();
+
 	
-	//@CamundaVariable(camundaName = "processType", getExpression = "getCiccio")
-	//public String processType = "?";
+	public ProcessRequest() {
+		super();
+	}
+		
+	public ProcessRequest(String businessKey) {
+		super();
+		this.businessKey = businessKey;
+		this.variables.nativeObjectId = CustomVariable.asString(businessKey);
+	}
 	
-	//public CustomProcessAttributes variables = new CustomProcessAttributes();
+	public void setProcessType(String processType) {
+		this.variables.processType = CustomVariable.asString(processType);
+
+	}
 	
-	public ProcessCustomVariables variables = new ProcessCustomVariables();
+	public void setBusinessInputAttributes(String businessInputAttributes) {
+		this.variables.businessInputAttributes = CustomVariable.asString(businessInputAttributes);
+
+	}
+	
+	// Getters
+	public String getBusinessKey() {
+		return businessKey;
+	}
+	
+	public ProcessCustomVariables getVariables() {
+		return variables;
+	}
+
+
+	
 
 }

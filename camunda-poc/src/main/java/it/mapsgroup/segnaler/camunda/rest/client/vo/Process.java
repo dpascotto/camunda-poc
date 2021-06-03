@@ -2,6 +2,8 @@ package it.mapsgroup.segnaler.camunda.rest.client.vo;
 
 import it.mapsgroup.segnaler.camunda.rest.client.vo.variables.*;
 
+// TODO mettere nel commento se la si usa solo alla richiesta della lista di processi
+
 // http://localhost:8080/engine-rest/process-instance
 /*
  *    {

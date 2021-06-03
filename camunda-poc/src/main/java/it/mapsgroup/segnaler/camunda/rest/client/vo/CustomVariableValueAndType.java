@@ -1,5 +1,6 @@
 package it.mapsgroup.segnaler.camunda.rest.client.vo;
 
+// TODO verificare se eliminazione non ha problemi
 // https://docs.camunda.org/manual/7.15/reference/rest/process-definition/post-start-process-instance/
 public class CustomVariableValueAndType {
 	public Object value;

@@ -11,7 +11,7 @@ public class ProcessA1Request extends ProcessRequest {
 
 	public static void main(String[] args) {
 		ProcessA1Request a1 = new ProcessA1Request();
-		a1.businessKey = "chiave-degli-affari";
+		//a1.businessKey = "chiave-degli-affari";
 		
 //		a1.variables.nomeSoggetto = CustomVariableValueAndType.asString("nome-soggetto-1");
 //		a1.variables.testoSegnalazione = CustomVariableValueAndType.asString("E naufragar m'è dolce in questo mare");

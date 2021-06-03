@@ -1,5 +1,6 @@
 package it.mapsgroup.segnaler.camunda.rest.client.vo.variables;
 
+// TODO mettere riferimento alla documentazione
 public class CustomVariable {
 	public String type;
 	public Object value;

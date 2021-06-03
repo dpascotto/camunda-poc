@@ -5,6 +5,7 @@ package it.mapsgroup.segnaler.camunda.demo.javaclass;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 
+// TODO verificare se questo delegate serve
 public class ProcessRequestDelegate implements JavaDelegate {
 
 	@Override

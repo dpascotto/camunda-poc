@@ -5,7 +5,8 @@ import it.mapsgroup.segnaler.camunda.util.ObjectToJson;
 /*
  * https://docs.camunda.org/manual/7.15/reference/rest/task/get-query/
  */
-public class Task extends GenericVo {
+public class Task extends ProcessRequest {
+	
 	// act_ru_task.id_
 	public String id;
 	
