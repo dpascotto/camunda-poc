@@ -12,19 +12,18 @@
     <bpmn:laneSet>
       <bpmn:lane id="Lane_0zdtwvm" name="Livello 1">
         <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>EndEvent_1ixumh1</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>VisualizzaDatiSegnalazione</bpmn:flowNodeRef>
       </bpmn:lane>
-      <bpmn:lane id="Lane_0vwk006" name="Livello 2" />
+      <bpmn:lane id="Lane_0vwk006" name="Livello 2">
+        <bpmn:flowNodeRef>A2_ConfermaDatiSegnalazione</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_1ixumh1</bpmn:flowNodeRef>
+      </bpmn:lane>
     </bpmn:laneSet>
     <bpmn:startEvent id="StartEvent_1" name="Inserisce Segnalazione" camunda:formKey="embedded:app:forms/visualizza-dati-segnalazione.html">
       <bpmn:outgoing>SequenceFlow_1gaeoun</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:sequenceFlow id="SequenceFlow_1gaeoun" sourceRef="StartEvent_1" targetRef="VisualizzaDatiSegnalazione" />
-    <bpmn:sequenceFlow id="Flow_0f2swlp" sourceRef="VisualizzaDatiSegnalazione" targetRef="EndEvent_1ixumh1" />
-    <bpmn:endEvent id="EndEvent_1ixumh1">
-      <bpmn:incoming>Flow_0f2swlp</bpmn:incoming>
-    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0f2swlp" sourceRef="A2_ConfermaDatiSegnalazione" targetRef="EndEvent_1ixumh1" />
     <bpmn:userTask id="VisualizzaDatiSegnalazione" name="Visualizza Dati Segnalazione" camunda:formKey="embedded:app:forms/visualizza-dati-segnalazione.html">
       <bpmn:extensionElements>
         <camunda:properties>
@@ -32,8 +31,21 @@
         </camunda:properties>
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_1gaeoun</bpmn:incoming>
+      <bpmn:outgoing>Flow_0lrrg3g</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="A2_ConfermaDatiSegnalazione" name="A2: Conferma Dati Segnalazione" camunda:formKey="embedded:app:forms/visualizza-dati-segnalazione.html">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0lrrg3g</bpmn:incoming>
       <bpmn:outgoing>Flow_0f2swlp</bpmn:outgoing>
     </bpmn:userTask>
+    <bpmn:endEvent id="EndEvent_1ixumh1">
+      <bpmn:incoming>Flow_0f2swlp</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0lrrg3g" sourceRef="VisualizzaDatiSegnalazione" targetRef="A2_ConfermaDatiSegnalazione" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="A2">
@@ -47,8 +59,8 @@
         <dc:Bounds x="153" y="82" width="877" height="125" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_0f2swlp_di" bpmnElement="Flow_0f2swlp">
-        <di:waypoint x="560" y="138" />
-        <di:waypoint x="902" y="138" />
+        <di:waypoint x="560" y="270" />
+        <di:waypoint x="902" y="270" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1gaeoun_di" bpmnElement="SequenceFlow_1gaeoun">
         <di:waypoint x="249" y="138" />
@@ -57,20 +69,27 @@
           <dc:Bounds x="281" y="117" width="0" height="12" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0lrrg3g_di" bpmnElement="Flow_0lrrg3g">
+        <di:waypoint x="510" y="178" />
+        <di:waypoint x="510" y="230" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="213" y="120" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="199" y="156" width="65" height="24" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UserTask_07kso30_di" bpmnElement="VisualizzaDatiSegnalazione">
+        <dc:Bounds x="460" y="98" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1urcb9e_di" bpmnElement="A2_ConfermaDatiSegnalazione">
+        <dc:Bounds x="460" y="230" width="100" height="80" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="EndEvent_1ixumh1_di" bpmnElement="EndEvent_1ixumh1">
-        <dc:Bounds x="902" y="120" width="36" height="36" />
+        <dc:Bounds x="902" y="252" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="808" y="286" width="90" height="12" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="UserTask_07kso30_di" bpmnElement="VisualizzaDatiSegnalazione">
-        <dc:Bounds x="460" y="98" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
