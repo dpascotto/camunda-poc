@@ -48,29 +48,17 @@
 			</td>
 		</tr>
 
-		<!--
-		<tr>
-			<td>
-				<label for="XXX_businessInputAttributes">XXX_Attributi (businessInputAttributes)</label>
-		</tr>
-		<tr>
-			<td>
-				<textarea 
-					id="XXX_businessInputAttributes"
-					name="XXX_businessInputAttributes"
-					cam-variable-name="XXX_businessInputAttributes"
-		          	cam-variable-type="String"
-		          	rows=6
-		          	cols=50
-		        >
-				</textarea>
-			</td>
-		</tr>
-		-->
+		
 
+
+		<!-- 
+			La TestArea non funziona se non facedno un casino
+			documentato qui: 
+			https://stackoverflow.com/questions/54004990/content-in-an-embedded-form-textarea-not-being-set-to-a-process-variable
+		-->
 		<tr>
 			<td>
-				<label for="processType">Attributi (businessInputAttributes)</label>
+				<label for="businessInputAttributes">Attributi (businessInputAttributes)</label>
 		</tr>
 		<tr>
 			<td>
@@ -79,7 +67,7 @@
          			cam-variable-name="businessInputAttributes"
          			cam-variable-type="String"
          			readonly
-         			size=50
+         			size=200
           		>			
 			</td>
 		</tr>
