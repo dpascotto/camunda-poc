@@ -2,25 +2,18 @@ package it.mapsgroup.segnaler.camunda.rest.client.vo;
 
 import java.util.Random;
 
-import it.mapsgroup.segnaler.camunda.rest.client.vo.variables.CustomVariable;
 import it.mapsgroup.segnaler.camunda.util.ObjectToJson;
 
 public class ProcessA2Request extends ProcessRequest {
 	
-	public ProcessA2Request(String businessKey) {
-		super(businessKey);
+	public ProcessA2Request(String businessKey, String processType) {
+		super(businessKey, processType);
 	}
 
 	public static void main(String[] args) {
-		ProcessA2Request a2 = new ProcessA2Request("LaMiaBusinessKey");
+		ProcessA2Request a2 = new ProcessA2Request("LaMiaBusinessKey", "A2_TEST");
 		
-		//a2.businessKey = "MainRunPK";
-
-		//a2.variables.nativeObjectId = CustomVariable.asString("ID_SISTEMA_CHIAMANTE_" + _random(100, 999));
-		//a2.variables.processType = CustomVariable.asString("A2_TEST");
-		//a2.variables.businessInputAttributes = CustomVariable.asString(new CippaLippa2().toString());
-		a2.setProcessType("A2_TEST");
-		a2.setBusinessInputAttributes(new CippaLippa2().toString());
+		a2.addBusinessInputVariables(new CippaLippa2());
 		
 		
 		String json = ObjectToJson.toJson(a2);

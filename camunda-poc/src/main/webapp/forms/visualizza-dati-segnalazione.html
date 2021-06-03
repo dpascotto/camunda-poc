@@ -1,7 +1,15 @@
+<!-- 
+
+	https://docs.camunda.org/get-started/java-process-app/forms/
+	
+	 
+
+-->
+
 <strong>Ecco i dati della segnalazione</strong>
-<br>
-<br>
-<hr/>
+
+
+<hr>
 
 <form>
 
@@ -9,62 +17,74 @@
 	
 		<tr>
 			<td>
-				<label for="businessId">Identificativo esterno del processo (businessId)</label>
+				<label for="nativeObjectId">Identificativo del processo nel sistema chiamante (nativeObjectId)</label>
 			</td>
+		</tr>
+		<tr>
 			<td>
-				<input type="text" id="businessId"
-         			cam-variable-name="businessId"
+				<input type="text" id="nativeObjectId"
+					name="nativeObjectId"
+         			cam-variable-name="nativeObjectId"
          			cam-variable-type="String"
          			readonly
          			size=50
-         			
-         		>
+          		>			
 			</td>
 		</tr>
 
 		<tr>
 			<td>
-				<label for="processType">TODO VERIFICARE IL NOME CHE DEVE AVERE Tipo di processo</label>
-			</td>
+				<label for="processType">Tipo di processo (processType)</label>
+		</tr>
+		<tr>
 			<td>
 				<input type="text" id="processType"
-         			cam-variable-name="variables.processType"
+					name="processType"
+         			cam-variable-name="processType"
          			cam-variable-type="String"
          			readonly
-         			size=10
-         			
-         		>
+         			size=50
+          		>			
 			</td>
 		</tr>
 
+		<!--
 		<tr>
 			<td>
-				<label for="businessInputAttributes">TODO VERIFICARE IL NOME CHE DEVE AVERE Dettagli</label>
-			</td>
+				<label for="XXX_businessInputAttributes">XXX_Attributi (businessInputAttributes)</label>
+		</tr>
+		<tr>
 			<td>
-				<textarea id="businessInputAttributes__" 
-         			cam-variable-name="businessInputAttributes__"
-         			cam-variable-type="String"
-					rows="6" 
-					cols="50">
+				<textarea 
+					id="XXX_businessInputAttributes"
+					name="XXX_businessInputAttributes"
+					cam-variable-name="XXX_businessInputAttributes"
+		          	cam-variable-type="String"
+		          	rows=6
+		          	cols=50
+		        >
 				</textarea>
 			</td>
 		</tr>
+		-->
 
 		<tr>
 			<td>
-				<label for="variables">TODO VERIFICARE se funziona - Custom Variables</label>
-			</td>
+				<label for="processType">Attributi (businessInputAttributes)</label>
+		</tr>
+		<tr>
 			<td>
-				<textarea id="variables" 
-         			cam-variable-name="variables"
+				<input type="text" id="businessInputAttributes"
+					name="businessInputAttributes"
+         			cam-variable-name="businessInputAttributes"
          			cam-variable-type="String"
-					rows="6" 
-					cols="50">
-				</textarea>
+         			readonly
+         			size=50
+          		>			
 			</td>
 		</tr>
 
+		
   
 
   

@@ -3,6 +3,8 @@ package it.mapsgroup.segnaler.camunda.util;
 import com.google.gson.Gson;
 
 import it.mapsgroup.segnaler.camunda.rest.client.vo.Task;
+import it.mapsgroup.segnaler.camunda.rest.client.vo.variables.CustomVariable;
+import it.mapsgroup.segnaler.camunda.rest.client.vo.variables.ProcessCustomVariables;
 
 
 public class JsonDataParser {
@@ -54,7 +56,7 @@ public class JsonDataParser {
 					+ "  \"tenantId\" : null\r\n"
 					+ "} ]";
 
-	public static void main(String[] args) {
+	public static void main_old(String[] args) {
 		try {
 			Object object = parseArray(arrayOfTasks, Task[].class);
 			for (Task task : (Task[])object) {
@@ -73,6 +75,14 @@ public class JsonDataParser {
 		Object object = gson.fromJson(json, classType);
 		
 		return object;
+	}
+	
+	public static void main (String[] args) {
+		String myFunnyJson = "{\"nomeSoggetto\":{\"type\":\"String\",\"value\":\"Pluto\",\"valueInfo\":{}}}";
+		
+		Object myFunnyObject = parseArray(myFunnyJson, CustomVariable.class);
+		
+		System.out.println(myFunnyObject);
 	}
 
 }

@@ -2,6 +2,7 @@ package it.mapsgroup.segnaler.camunda.rest.client.vo;
 
 import it.mapsgroup.segnaler.camunda.rest.client.vo.variables.CustomVariable;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.variables.ProcessCustomVariables;
+import it.mapsgroup.segnaler.camunda.util.ObjectToJson;
 
 // TODO mettere nel commento se questa serve solo all'INSTANZIAMENTO del Process (a differenza della classe Process
 // che dovrebbe corrispondere al solo output)
@@ -25,19 +26,15 @@ public class ProcessRequest extends GenericRequest {
 		super();
 	}
 		
-	public ProcessRequest(String businessKey) {
+	public ProcessRequest(String businessKey, String processType) {
 		super();
 		this.businessKey = businessKey;
 		this.variables.nativeObjectId = CustomVariable.asString(businessKey);
-	}
-	
-	public void setProcessType(String processType) {
 		this.variables.processType = CustomVariable.asString(processType);
-
 	}
 	
-	public void setBusinessInputAttributes(String businessInputAttributes) {
-		this.variables.businessInputAttributes = CustomVariable.asString(businessInputAttributes);
+	public void addBusinessInputVariables(Object businessInputAttributes) {
+		this.variables.businessInputAttributes = CustomVariable.asString(ObjectToJson.toJson(businessInputAttributes));
 
 	}
 	

@@ -17,7 +17,7 @@
       </bpmn:lane>
       <bpmn:lane id="Lane_0vwk006" name="Livello 2" />
     </bpmn:laneSet>
-    <bpmn:startEvent id="StartEvent_1" name="Inserisce Segnalazione">
+    <bpmn:startEvent id="StartEvent_1" name="Inserisce Segnalazione" camunda:formKey="embedded:app:forms/visualizza-dati-segnalazione.html">
       <bpmn:outgoing>SequenceFlow_1gaeoun</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:sequenceFlow id="SequenceFlow_1gaeoun" sourceRef="StartEvent_1" targetRef="VisualizzaDatiSegnalazione" />

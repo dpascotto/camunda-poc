@@ -263,7 +263,8 @@ public class SegnalERRestClient {
 			ProcessCustomVariables customVariables = (ProcessCustomVariables)JsonDataParser.parseArray(variables, ProcessCustomVariables.class);
 			
 			process.variables = customVariables;
-			//System.out.println(customVariables);
+			System.out.println(process.variables);
+			System.out.println("Sei contento?");
 		}
 		
 		// Loggo tutto (processi e variabili)
@@ -365,7 +366,7 @@ public class SegnalERRestClient {
 	
 	private static void _startProcessA2() throws Exception {
 		
-		String bk = readFromInputLine("Valore della business key", "Business Key " + _random(10, 99));
+		String bk = readFromInputLine("Native Object ID", "NativeObjectID_ " + _random(10, 99));
 		String nm = readFromInputLine("Nome", "Diego");
 		String sn = readFromInputLine("Cognome", "Pascotto");
 		String in = readFromInputLine("Indirizzo", "Via Senato, " + _random(10, 99) + ", 430" + _random(10, 99) + " Tarsogno (PR)");
@@ -443,16 +444,15 @@ public class SegnalERRestClient {
 		}
 	}
 
-	private static void startProcessA2(String nativeObjectId, Object myReadOnlyParameters) {
+	private static void startProcessA2(String nativeObjectId, Object myObject) {
 		try {
-			String taskKey = "ProcessA2";
-			ProcessA2Request a2 = new ProcessA2Request(nativeObjectId);
+			String processKey = "ProcessA2";
+			ProcessA2Request a2 = new ProcessA2Request(nativeObjectId, "A2");
 			
-			a2.setProcessType("A2");
-			a2.setBusinessInputAttributes(myReadOnlyParameters.toString());
+			a2.addBusinessInputVariables(myObject);
 			
 			
-			ResponseEntity<it.mapsgroup.segnaler.camunda.rest.client.vo.Process> response = restTemplate.postForEntity("http://localhost:8080/engine-rest/process-definition/key/" + taskKey + "/start", a2, null);
+			ResponseEntity<it.mapsgroup.segnaler.camunda.rest.client.vo.Process> response = restTemplate.postForEntity("http://localhost:8080/engine-rest/process-definition/key/" + processKey + "/start", a2, null);
 			System.out.println("ProcessA2 created: " + response);
 		} catch (Exception e) {
 			System.err.println("Impossibile fare partire il processo A2: " + e.getMessage());
@@ -510,6 +510,7 @@ public class SegnalERRestClient {
 }
 
 
+
 class ASimpleBusinessClass {
 	
 	public ASimpleBusinessClass(String name, String surname, String address) {
@@ -521,10 +522,10 @@ class ASimpleBusinessClass {
 	public String name;
 	public String surname;
 	public String address;
-	@Override
-	public String toString() {
-		return "ASimpleBusinessClass [name=" + name + ", surname=" + surname + ", address=" + address + "]";
-	}
+//	@Override
+//	public String toString() {
+//		return "ASimpleBusinessClass [name=" + name + ", surname=" + surname + ", address=" + address + "]";
+//	}
 	
 	
 }
