@@ -14,16 +14,14 @@
         <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>EndEvent_1ixumh1</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>VisualizzaDatiSegnalazione</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_0w4cs2h</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_0vwk006" name="Livello 2" />
     </bpmn:laneSet>
     <bpmn:startEvent id="StartEvent_1" name="Inserisce Segnalazione">
       <bpmn:outgoing>SequenceFlow_1gaeoun</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:sequenceFlow id="SequenceFlow_1gaeoun" sourceRef="StartEvent_1" targetRef="Task_0w4cs2h" />
+    <bpmn:sequenceFlow id="SequenceFlow_1gaeoun" sourceRef="StartEvent_1" targetRef="VisualizzaDatiSegnalazione" />
     <bpmn:sequenceFlow id="Flow_0f2swlp" sourceRef="VisualizzaDatiSegnalazione" targetRef="EndEvent_1ixumh1" />
-    <bpmn:sequenceFlow id="Flow_1wpwfww" sourceRef="Task_0w4cs2h" targetRef="VisualizzaDatiSegnalazione" />
     <bpmn:endEvent id="EndEvent_1ixumh1">
       <bpmn:incoming>Flow_0f2swlp</bpmn:incoming>
     </bpmn:endEvent>
@@ -33,13 +31,9 @@
           <camunda:property />
         </camunda:properties>
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_1wpwfww</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_1gaeoun</bpmn:incoming>
       <bpmn:outgoing>Flow_0f2swlp</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:serviceTask id="Task_0w4cs2h" name="Assegna ID" camunda:class="it.mapsgroup.segnaler.camunda.delegate.A2Delegate">
-      <bpmn:incoming>SequenceFlow_1gaeoun</bpmn:incoming>
-      <bpmn:outgoing>Flow_1wpwfww</bpmn:outgoing>
-    </bpmn:serviceTask>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="A2">
@@ -52,17 +46,13 @@
       <bpmndi:BPMNShape id="Lane_0zdtwvm_di" bpmnElement="Lane_0zdtwvm" isHorizontal="true">
         <dc:Bounds x="153" y="82" width="877" height="125" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_1wpwfww_di" bpmnElement="Flow_1wpwfww">
-        <di:waypoint x="460" y="138" />
-        <di:waypoint x="600" y="138" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0f2swlp_di" bpmnElement="Flow_0f2swlp">
-        <di:waypoint x="700" y="138" />
+        <di:waypoint x="560" y="138" />
         <di:waypoint x="902" y="138" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1gaeoun_di" bpmnElement="SequenceFlow_1gaeoun">
         <di:waypoint x="249" y="138" />
-        <di:waypoint x="360" y="138" />
+        <di:waypoint x="460" y="138" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="281" y="117" width="0" height="12" />
         </bpmndi:BPMNLabel>
@@ -80,10 +70,7 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="UserTask_07kso30_di" bpmnElement="VisualizzaDatiSegnalazione">
-        <dc:Bounds x="600" y="98" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="ServiceTask_0uysdlx_di" bpmnElement="Task_0w4cs2h">
-        <dc:Bounds x="360" y="98" width="100" height="80" />
+        <dc:Bounds x="460" y="98" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
