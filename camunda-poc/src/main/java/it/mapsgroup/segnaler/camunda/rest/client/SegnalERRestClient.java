@@ -351,10 +351,7 @@ public class SegnalERRestClient {
 		String taskKey = readFromInputLine("Inserisci l'id del task: ");
 		String userId = readFromInputLine("Inserisci l'id dell'utente: ");
 		
-		// Correggere questa schifezza
-		
-		Task task = new Task();
-		task.id = taskKey;
+		Task task = getTaskDetail(taskKey);
 		
 		assignTask(task, userId);
 	}
