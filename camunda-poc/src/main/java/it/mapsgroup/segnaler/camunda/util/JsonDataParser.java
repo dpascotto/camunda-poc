@@ -56,9 +56,15 @@ public class JsonDataParser {
 					+ "  \"tenantId\" : null\r\n"
 					+ "} ]";
 
-	public static void main_old(String[] args) {
+	public static void main(String[] args) {
+		main_parseArray();
+		System.out.println("\r\n-------------------------\r\n");
+		main_parseObject();
+	}
+	
+	public static void main_parseArray() {
 		try {
-			Object object = parseArray(arrayOfTasks, Task[].class);
+			Object object = parseObjectOrArray(arrayOfTasks, Task[].class);
 			for (Task task : (Task[])object) {
 				System.out.println(task.id + " - " + task.name);
 			}
@@ -68,21 +74,32 @@ public class JsonDataParser {
 
 	}
 
-	public static Object parseArray(String json, Class classType) throws RuntimeException {
+	public static Object parseObjectOrArray(String json, Class classType) throws RuntimeException {
 
 		Gson gson = new Gson();
 		
-		Object object = gson.fromJson(json, classType);
+		Object objectOrArray = gson.fromJson(json, classType);
 		
-		return object;
+		return objectOrArray;
 	}
 	
-	public static void main (String[] args) {
-		String myFunnyJson = "{\"nomeSoggetto\":{\"type\":\"String\",\"value\":\"Pluto\",\"valueInfo\":{}}}";
+	public static void main_parseObject () {
+		String myFunnyJson = "{\"colore\":\"beige\",\"dimensione\":15}";
 		
-		Object myFunnyObject = parseArray(myFunnyJson, CustomVariable.class);
+		Object myFunnyObject = parseObjectOrArray(myFunnyJson, CippaLippa3.class);
 		
+		System.out.print(myFunnyJson + " --> ");
 		System.out.println(myFunnyObject);
 	}
 
+}
+
+class CippaLippa3 {
+	public String colore;
+	public int dimensione;
+
+	@Override
+	public String toString() {
+		return "CippaLippa3 [colore=" + colore + ", dimensione=" + dimensione + "]";
+	}
 }

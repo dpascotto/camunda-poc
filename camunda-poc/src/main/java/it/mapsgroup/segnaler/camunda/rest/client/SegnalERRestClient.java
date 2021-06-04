@@ -15,6 +15,7 @@ import it.mapsgroup.segnaler.camunda.rest.client.vo.ProcessA1Request;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.ProcessA2Request;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.ProcessInstance;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.Task;
+import it.mapsgroup.segnaler.camunda.rest.client.vo.TaskWithParentProcess;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.User;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.UserCredentials;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.UserProfile;
@@ -96,6 +97,39 @@ public class SegnalERRestClient {
 		return tasks;
 	}
 	
+	private static TaskWithParentProcess _getTaskDetail() throws Exception {
+		String taskId = readFromInputLine("Inserisci l'id del task: ");
+		
+		TaskWithParentProcess taskDetail = getTaskDetail(taskId);
+		System.out.println("Recuperato il dettaglio del task con i dati del processo che lo contiene:");
+		System.out.println(taskDetail);
+		return taskDetail;
+	}
+	
+	private static TaskWithParentProcess getTaskDetail(String taskId) {
+		try {
+			String taskJson = restTemplate.getForObject("http://localhost:8080/engine-rest/task?taskId=" + taskId, String.class);
+			
+			TaskWithParentProcess[] tasks = (TaskWithParentProcess[]) JsonDataParser.parseObjectOrArray(taskJson, TaskWithParentProcess[].class);
+			
+			if (tasks == null || tasks.length != 1) {
+				throw new RuntimeException("Paer il taskId " + taskId + " mi aspettavo un task invece ..." );
+			}
+			
+			TaskWithParentProcess task = tasks[0];
+			//ProcessCustomVariables processCustomVariables = getProcessCustomVariables(task.processInstanceId);
+			
+			task.parentProcess = getProcessById(task.processInstanceId);
+			task.parentProcess.variables = getProcessCustomVariables(task.processInstanceId);
+			
+			System.out.println("recuperato il task (con attaccato il suo parent process): " + task);
+			return task;
+		} catch (Exception e) {
+			System.err.println("Problema a recuperare il task " + taskId + ": " + e.getMessage());
+			return null;
+		}
+	}
+
 	private static void deleteTask() throws Exception {
 		String taskId = readFromInputLine("Inserisci l'id del task da cancellare (* per provare a cancellarli tutti): ");
 		int deleted = 0, notDeleted = 0;
@@ -164,6 +198,7 @@ public class SegnalERRestClient {
 		System.out.println("2.1 ... Fai partire un'istanza del processo ProcessA1");
 		System.out.println("2.2 ... Fai partire un'istanza del processo ProcessA2");
 		System.out.println("3 ..... Elenco dei task                                           [act_hi_taskinst]");       
+		System.out.println("3a .... Dettaglio di un task                                                       ");       
 		System.out.println("4 ..... Elenco degli utenti");
 		System.out.println("5 ..... Assegna task a un utente");
 		System.out.println("6 ..... Aggiorna task");
@@ -187,6 +222,8 @@ public class SegnalERRestClient {
 			_startProcessA2();
 		} else if (choice.equals("3")) {
 			listTasks();
+		} else if (choice.equals("3a")) {
+			_getTaskDetail();
 		} else if (choice.equals("4")) {
 			listUsers();
 		} else if (choice.equals("5")) {
@@ -252,19 +289,20 @@ public class SegnalERRestClient {
 		Map<String, String> vars = new HashMap<String, String>();
 		String result = restTemplate.getForObject("http://localhost:8080/engine-rest/process-instance", String.class, vars);
 		
-		it.mapsgroup.segnaler.camunda.rest.client.vo.Process[] processes = (it.mapsgroup.segnaler.camunda.rest.client.vo.Process[]) JsonDataParser.parseArray(result, it.mapsgroup.segnaler.camunda.rest.client.vo.Process[].class);
+		it.mapsgroup.segnaler.camunda.rest.client.vo.Process[] processes = (it.mapsgroup.segnaler.camunda.rest.client.vo.Process[]) JsonDataParser.parseObjectOrArray(result, it.mapsgroup.segnaler.camunda.rest.client.vo.Process[].class);
 		System.out.println("\r\n\r\n\r\nThere are " + processes.length + " ACTIVE processes");
 		for (it.mapsgroup.segnaler.camunda.rest.client.vo.Process process : processes) {
 			
 			/*
 			 * Per ogni processo prendo le variabili
 			 */
-			String variables = restTemplate.getForObject("http://localhost:8080/engine-rest/process-instance/" + process.id + "/variables", String.class, vars);
-			ProcessCustomVariables customVariables = (ProcessCustomVariables)JsonDataParser.parseArray(variables, ProcessCustomVariables.class);
-			
-			process.variables = customVariables;
+//			String variables = restTemplate.getForObject("http://localhost:8080/engine-rest/process-instance/" + process.id + "/variables", String.class, vars);
+//			ProcessCustomVariables customVariables = (ProcessCustomVariables)JsonDataParser.parseObjectOrArray(variables, ProcessCustomVariables.class);
+//			
+//			process.variables = customVariables;
+			process.variables = getProcessCustomVariables(process.id);
 			System.out.println(process.variables);
-			System.out.println("Sei contento?");
+
 		}
 		
 		// Loggo tutto (processi e variabili)
@@ -276,13 +314,32 @@ public class SegnalERRestClient {
 		}
 	}
 	
+	public static it.mapsgroup.segnaler.camunda.rest.client.vo.Process getProcessById(String processId) {
+		Map<String, String> vars = new HashMap<String, String>();
+		String result = restTemplate.getForObject("http://localhost:8080/engine-rest/process-instance/" + processId, String.class, vars);
+		
+		it.mapsgroup.segnaler.camunda.rest.client.vo.Process process = (it.mapsgroup.segnaler.camunda.rest.client.vo.Process) JsonDataParser.parseObjectOrArray(result, it.mapsgroup.segnaler.camunda.rest.client.vo.Process.class);
+		
+		return process;
+	}
+	
+	//private static Task
+	
+	private static ProcessCustomVariables getProcessCustomVariables(String processId) {
+		Map<String, String> vars = new HashMap<String, String>();
+		String variables = restTemplate.getForObject("http://localhost:8080/engine-rest/process-instance/" + processId + "/variables", String.class, vars);
+		ProcessCustomVariables customVariables = (ProcessCustomVariables)JsonDataParser.parseObjectOrArray(variables, ProcessCustomVariables.class);
+		
+		return customVariables;
+	}
+	
 	private static UserProfile[] listUsers() {
 		Map<String, String> vars = new HashMap<String, String>();
 		String result = restTemplate.getForObject("http://localhost:8080/engine-rest/user", String.class, vars);
 		
 		//System.out.println(JsonFormatter.convertFlatJsonToFormattedJson(result));
 		
-		UserProfile[] users = (UserProfile[]) JsonDataParser.parseArray(result, UserProfile[].class);
+		UserProfile[] users = (UserProfile[]) JsonDataParser.parseObjectOrArray(result, UserProfile[].class);
 		for (UserProfile user : users) {
 			System.out.println("User id = " + user.id + ", name + surname = " + user.firstName + " " + user.lastName);
 		}
@@ -469,7 +526,7 @@ public class SegnalERRestClient {
 		
 		//System.out.println(JsonFormatter.convertFlatJsonToFormattedJson(result));
 		
-		return (Task[])JsonDataParser.parseArray(result, Task[].class);
+		return (Task[])JsonDataParser.parseObjectOrArray(result, Task[].class);
 	}
 	
 	public static ProcessInstance[] listAllProcessInstances() {
@@ -479,7 +536,7 @@ public class SegnalERRestClient {
 		
 		System.out.println(JsonFormatter.convertFlatJsonToFormattedJson(result));
 		
-		return (ProcessInstance[])JsonDataParser.parseArray(result, ProcessInstance[].class);
+		return (ProcessInstance[])JsonDataParser.parseObjectOrArray(result, ProcessInstance[].class);
 	}
 	
 	/*
@@ -497,6 +554,7 @@ public class SegnalERRestClient {
 		
 	}
 
+	@Deprecated // fatto quello by ID
 	private static Task getTaskById(String taskId) {
 		Task[] tasks = listAllTasks();
 		for (Task task : tasks) {
