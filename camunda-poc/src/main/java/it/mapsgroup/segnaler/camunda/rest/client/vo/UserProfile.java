@@ -5,4 +5,12 @@ public class UserProfile {
 	public String firstName; // act_id_user_.first (senza underscore)
 	public String lastName; // act_id_user_.last_
 	public String email; // act_id_user_.email_
+	
+	@Override
+	public String toString() {
+		return "UserProfile [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email
+				+ "]";
+	}
+	
+	
 }

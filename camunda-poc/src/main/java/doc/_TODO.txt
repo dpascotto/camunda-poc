@@ -1,0 +1,10 @@
++ togliere il readonly dalla pagina HTML
++ dettaglio del task con attributi del process che lo contiene
++ fare meglio l'assegnazione di un task (assignTask) senza fare il new
++ implementare creazione di un utente
+- vedere perche aggiornaTask dà errore 405 (probabilmente non ha senso aggiornare la description)
+- implementare l'esecuzione del task (save + complete). Verificare se si possono aggiungere azioni custom
+- deprecare cancella task
+- cancella processi deve provare a cancellare solo quelli attivi
+
+- utenti e profili

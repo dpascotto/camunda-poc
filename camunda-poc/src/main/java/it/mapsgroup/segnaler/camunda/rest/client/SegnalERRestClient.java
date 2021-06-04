@@ -200,6 +200,8 @@ public class SegnalERRestClient {
 		System.out.println("3 ..... Elenco dei task                                           [act_hi_taskinst]");       
 		System.out.println("3a .... Dettaglio di un task                                                       ");       
 		System.out.println("4 ..... Elenco degli utenti");
+		System.out.println("4a .... Dettaglio utente");
+		System.out.println("4b .... Crea utente");
 		System.out.println("5 ..... Assegna task a un utente");
 		System.out.println("6 ..... Aggiorna task");
 		System.out.println("7 ..... Cancella task(s)");
@@ -226,6 +228,10 @@ public class SegnalERRestClient {
 			_getTaskDetail();
 		} else if (choice.equals("4")) {
 			listUsers();
+		} else if (choice.equals("4a")) {
+			getUser();
+		} else if (choice.equals("4b")) {
+			createUser();
 		} else if (choice.equals("5")) {
 			assignTaskToUser();
 		} else if (choice.equals("6")) {
@@ -562,6 +568,69 @@ public class SegnalERRestClient {
 		throw new RuntimeException("Task id " + taskId + " does not exist");
 	}
 
+	public static void getUser() throws Exception {
+		String username = readFromInputLine("Username? ");
+		
+		UserProfile user = _getUser(username);
+		if (user == null) {
+			System.err.println("L'utente non esiste, crearlo [Y/N]?");
+			String choice = readFromInputLine("L'utente non esiste, crearlo? [Y/N] ");
+			if (choice.equalsIgnoreCase("Y")) {
+				_createUser(username, "_" + username, "_", null);
+				user = _getUser(username);
+			} else if (choice.equalsIgnoreCase("N")) {
+				System.out.println("Utente " + username + " non creato");
+				return;
+			} else {
+				throw new RuntimeException("Do the right thing");
+			}
+			
+			return;
+		}
+		
+		System.out.println(user.toString());
+	}
+
+	private static UserProfile _getUser(String username) {
+		Map<String, String> vars = new HashMap<String, String>();
+		String result = restTemplate.getForObject("http://localhost:8080/engine-rest/user?id=" + username, String.class, vars);
+		
+		UserProfile[] arrayWithOne = (UserProfile[]) JsonDataParser.parseObjectOrArray(result, UserProfile[].class);
+		if (arrayWithOne == null || arrayWithOne.length == 0) {
+			System.err.println("Utente " + username + " non esiste");
+			return null;
+		}
+		if (arrayWithOne.length > 1) {
+			throw new RuntimeException("Ci sono troppi utenti con lo username " + username + ", " + arrayWithOne.length);
+		}
+		
+		UserProfile user = arrayWithOne[0];
+		
+		System.out.println("\r\n\r\n");
+		System.out.println("User id = " + user.id + ", name + surname = " + user.firstName + " " + user.lastName);
+		System.out.println("\r\n\r\n");
+		
+		return user;
+	}
+
+	public static void createUser() throws Exception {
+		String username = readFromInputLine("Username: ", null);
+		String firstName = readFromInputLine("First name: ", "?");
+		String lastName = readFromInputLine("Last name: ", "?");
+		String email = readFromInputLine("email address: ", "?");
+		
+		_createUser(username, firstName, lastName, email);
+		
+		System.out.println("User " + username + " created");
+	}
+
+	private static void _createUser(String username) {
+		createUser(username, null, null, null);
+	}
+
+	private static void _createUser(String username, String firstName, String lastName, String email) {
+		createUser(username, firstName, lastName, email);
+	}
 
 
 }
