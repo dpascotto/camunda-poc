@@ -133,6 +133,7 @@ public class SegnalERRestClient {
 		}
 	}
 
+	@Deprecated
 	private static void deleteTask() throws Exception {
 		String taskId = readFromInputLine("Inserisci l'id del task da cancellare (* per provare a cancellarli tutti): ");
 		int deleted = 0, notDeleted = 0;
@@ -165,8 +166,8 @@ public class SegnalERRestClient {
 		
 	}
 	
-	private static void deleteProcessInstances() throws Exception {
-		ProcessInstance[] pis = listAllProcessInstances();
+	private static void deleteActiveProcessInstances() throws Exception {
+		ProcessInstance[] pis = listAllActiveProcessInstances();
 		int deleted = 0, notDeleted = 0;
 
 		for (ProcessInstance pi : pis) {
@@ -197,18 +198,18 @@ public class SegnalERRestClient {
 		System.out.println();
 		System.out.println();
 		System.out.println("============= Possibili opzioni ===================================================");
-		System.out.println("1 ..... Elenco dei processi ATTIVI (tutte le versioni)             [act_re_procdef]");
+		System.out.println("1 ..... Elenco dei processi ATTIVI (tutte le versioni) ");
 		System.out.println("2.1 ... Fai partire un'istanza del processo ProcessA1");
 		System.out.println("2.2 ... Fai partire un'istanza del processo ProcessA2");
-		System.out.println("3 ..... Elenco dei task                                           [act_hi_taskinst]");       
+		System.out.println("3 ..... Elenco dei task                                          ");       
 		System.out.println("3a .... Dettaglio di un task                                                       ");       
 		System.out.println("4 ..... Elenco degli utenti");
 		System.out.println("4a .... Dettaglio utente");
 		System.out.println("4b .... Crea utente");
 		System.out.println("5 ..... Assegna task a un utente");
 		System.out.println("6 ..... Completa task e aggiorna processo");
-		System.out.println("7 ..... Cancella task(s)");
-		System.out.println("8 ..... Cancella tutte le istanze di processo");
+		//System.out.println("7 ..... Cancella task(s)");
+		System.out.println("7 ..... Cancella tutte le istanze di processo attive");
 		System.out.println("===================================================================================");
 		System.out.println();
 		System.out.println();
@@ -241,10 +242,10 @@ public class SegnalERRestClient {
 			//updateTask();
 			//updateProcess();
 			completeTask();
+//		} else if (choice.equals("7")) {
+//			deleteTask();
 		} else if (choice.equals("7")) {
-			deleteTask();
-		} else if (choice.equals("8")) {
-			deleteProcessInstances();
+			deleteActiveProcessInstances();
 		} else {
 			System.err.println("Valore " + choice + " ignoto o non implementato");
 		}
@@ -539,10 +540,10 @@ public class SegnalERRestClient {
 		return (Task[])JsonDataParser.parseObjectOrArray(result, Task[].class);
 	}
 	
-	public static ProcessInstance[] listAllProcessInstances() {
+	public static ProcessInstance[] listAllActiveProcessInstances() {
 		Map<String, String> vars = new HashMap<String, String>();
 		
-		String result = restTemplate.getForObject("http://localhost:8080/engine-rest/history/process-instance", String.class, vars);
+		String result = restTemplate.getForObject("http://localhost:8080/engine-rest/history/process-instance?active=true", String.class, vars);
 		
 		System.out.println(JsonFormatter.convertFlatJsonToFormattedJson(result));
 		
