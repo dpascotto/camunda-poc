@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import it.mapsgroup.segnaler.camunda.rest.client.vo.BasicUser;
+import it.mapsgroup.segnaler.camunda.rest.client.vo.Modification;
+import it.mapsgroup.segnaler.camunda.rest.client.vo.Modifications;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.ProcessA1Request;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.ProcessA2Request;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.ProcessInstance;
@@ -19,6 +21,7 @@ import it.mapsgroup.segnaler.camunda.rest.client.vo.TaskWithParentProcess;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.User;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.UserCredentials;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.UserProfile;
+import it.mapsgroup.segnaler.camunda.rest.client.vo.variables.CustomVariable;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.variables.ProcessCustomVariables;
 import it.mapsgroup.segnaler.camunda.util.JsonDataParser;
 import it.mapsgroup.segnaler.camunda.util.JsonFormatter;
@@ -203,7 +206,7 @@ public class SegnalERRestClient {
 		System.out.println("4a .... Dettaglio utente");
 		System.out.println("4b .... Crea utente");
 		System.out.println("5 ..... Assegna task a un utente");
-		System.out.println("6 ..... Aggiorna task");
+		System.out.println("6 ..... Completa task e aggiorna processo");
 		System.out.println("7 ..... Cancella task(s)");
 		System.out.println("8 ..... Cancella tutte le istanze di processo");
 		System.out.println("===================================================================================");
@@ -235,7 +238,9 @@ public class SegnalERRestClient {
 		} else if (choice.equals("5")) {
 			assignTaskToUser();
 		} else if (choice.equals("6")) {
-			updateTask();
+			//updateTask();
+			//updateProcess();
+			completeTask();
 		} else if (choice.equals("7")) {
 			deleteTask();
 		} else if (choice.equals("8")) {
@@ -325,7 +330,9 @@ public class SegnalERRestClient {
 		String result = restTemplate.getForObject("http://localhost:8080/engine-rest/process-instance/" + processId, String.class, vars);
 		
 		it.mapsgroup.segnaler.camunda.rest.client.vo.Process process = (it.mapsgroup.segnaler.camunda.rest.client.vo.Process) JsonDataParser.parseObjectOrArray(result, it.mapsgroup.segnaler.camunda.rest.client.vo.Process.class);
-		
+		// Aggiungo il dettaglio con una chiamata aggiuntiva:
+		process.variables = getProcessCustomVariables(process.id);
+
 		return process;
 	}
 	
@@ -545,6 +552,7 @@ public class SegnalERRestClient {
 	/*
 	 * https://docs.camunda.org/manual/7.3/api-references/rest/#task-update-a-task
 	 */
+	@Deprecated
 	private static void updateTask() throws Exception {
 		// Aggiorno i campi custom del task del processo A1 (nomeSoggetto, segnalazione)
 		String taskId = readFromInputLine("Inserisci l'ID del task: ");
@@ -555,6 +563,73 @@ public class SegnalERRestClient {
 		
 		restTemplate.postForEntity("http://localhost:8080/engine-rest/task/" + taskId + "/", task, null);
 		
+	}
+	
+	/*
+	 * Si modificano solo i businessInputAttributes
+	 * E' modificata solo la property di nome businessInputAttributes del processo
+	 * (la visualizzazione del task dall'interfaccia nativa di Camunda fa vedere il valore sul task, non modificato)
+	 */
+	@Deprecated // tutto collassato in submit task e update process
+	private static void updateProcess() throws Exception {
+		String processId = readFromInputLine("Inserisci il Process ID: ");
+		it.mapsgroup.segnaler.camunda.rest.client.vo.Process process = getProcessById(processId);
+
+		ProcessCustomVariables variables = process.variables;
+		System.out.println("Variabili del processo:\r\n" + variables);
+		System.out.println("Variabili del processo - Business Input Attributes:\r\n" + variables.businessInputAttributes.toString());
+		
+		String biaMod = readFromInputLine("Inserisci il nuovo valore di businessInputAttributes:\r\n");
+		Modification modification = new Modification();
+		modification.modifications = new Modifications();
+		modification.modifications.businessInputAttributes = CustomVariable.asString(biaMod);
+		
+		restTemplate.postForEntity("http://localhost:8080/engine-rest/process-instance/" + processId + "/variables", modification, null);
+		System.out.println("Update effettuato");
+		
+		// Per sicurezza faccio la get del processo e la stampo
+		
+		it.mapsgroup.segnaler.camunda.rest.client.vo.Process updatedProcess = getProcessById(processId);
+		System.out.println("Processo aggiornato: " + updatedProcess.toString());
+	}
+	
+	private static void completeTask() throws Exception {
+		/*
+		 * Per prima cosa estraggo il process a cui appartiene
+		 */
+		String taskId = readFromInputLine("Inserisci il task ID: ");
+		TaskWithParentProcess task = getTaskDetail(taskId);
+		it.mapsgroup.segnaler.camunda.rest.client.vo.Process process = task.parentProcess;
+		
+		/*
+		 * Sottometto il task SENZA cambiare le property
+		 */
+		restTemplate.postForEntity("http://localhost:8080/engine-rest/task/" + taskId + "/submit-form", task, null);
+		
+		/*
+		 * Visualizzo le variabili correnti del processo
+		 */
+		ProcessCustomVariables variables = process.variables;
+		System.out.println("Variabili del processo:\r\n" + variables);
+		System.out.println("Variabili del processo - Business Input Attributes:\r\n" + variables.businessInputAttributes.toString());
+		
+		/*
+		 * Chiedo le nuove variabili (solo la parte custom: businessInputAttributes)
+		 */
+		String biaMod = readFromInputLine("Inserisci il nuovo valore di businessInputAttributes:\r\n");
+		Modification modification = new Modification();
+		modification.modifications = new Modifications();
+		modification.modifications.businessInputAttributes = CustomVariable.asString(biaMod);
+		
+		/*
+		 * Aggiorno il process in modo che le variabili modificate
+		 */
+		restTemplate.postForEntity("http://localhost:8080/engine-rest/process-instance/" + process.id + "/variables", modification, null);
+		System.out.println("Update effettuato");
+		
+		// Per sicurezza faccio la get del processo e la stampo		
+		it.mapsgroup.segnaler.camunda.rest.client.vo.Process updatedProcess = getProcessById(process.id);
+		System.out.println("Processo aggiornato: " + updatedProcess.toString());
 	}
 
 	@Deprecated // fatto quello by ID

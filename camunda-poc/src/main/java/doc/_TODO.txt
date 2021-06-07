@@ -2,7 +2,10 @@
 + dettaglio del task con attributi del process che lo contiene
 + fare meglio l'assegnazione di un task (assignTask) senza fare il new
 + implementare creazione di un utente
-- vedere perche aggiornaTask dà errore 405 (probabilmente non ha senso aggiornare la description)
+- Implementare il flusso di aggiornamento di un processo (il singolo task non lo affrontiamo):
+  - http://localhost:8080/engine-rest/process-instance/--ID--/variables con la property 'modifications'3
+    lo fa sia che sia assegnato a un utente oppure no (Update Process Variables) - RIFARE IL FLUSSO 6
+  - implementare il submit del task (https://docs.camunda.org/manual/7.8/reference/rest/task/post-submit-form/)
 - implementare l'esecuzione del task (save + complete). Verificare se si possono aggiungere azioni custom
 - deprecare cancella task
 - cancella processi deve provare a cancellare solo quelli attivi
