@@ -13,3 +13,6 @@
 + cancella processi deve provare a cancellare solo quelli attivi
 
 - utenti e profili
+  - API utenti, gruppi etc.
+  - gli utenti nuovi non devono essere come l'admin
+  - associazione 'corsia' con il gruppo

@@ -8,9 +8,12 @@ import java.util.Map;
 import java.util.Random;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import it.mapsgroup.segnaler.camunda.rest.client.vo.BasicUser;
+import it.mapsgroup.segnaler.camunda.rest.client.vo.Group;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.Modification;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.Modifications;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.ProcessA1Request;
@@ -50,15 +53,36 @@ public class SegnalERRestClient {
 			
 			UserProfile[] users = listUsers();
 			
-			if (!_contains(users, "level1")) {
-				createUser("level1", "Level", "One", "level1@my-mail.com");
-			}
-			if (!_contains(users, "level2")) {
-				createUser("level2", "Level", "Two", "level2@my-mail.com");
-			}
+			createUserSoft(users, "level1", "Level", "One", "level1@my-mail.com");
+			createUserSoft(users, "level2", "Level", "Two", "level2@my-mail.com");
 			
 			assignTask(tasks[0], "level1");
 			assignTask(tasks[1], "level2");
+		}
+		
+		/*
+		 * Auto-2: creazione dei gruppi, degli utenti e assegnazione degli utenti ai gruppi
+		 */
+		boolean auto2 = true;
+		if (auto2) {
+			UserProfile[] users = listUsers();
+
+			createUserSoft(users, "qui", "Qui", "Paolino", "qui@disney.com");
+			createUserSoft(users, "quo", "Quo", "Paolino", "quo@disney.com");
+			createUserSoft(users, "qua", "Qua", "Paolino", "qua@disney.com");
+			createUserSoft(users, "paperino", "Paperino", "Paolino", "paperino@disney.com");
+			createUserSoft(users, "paperone", "Paperon", "De' Paperoni", "paperone@disney.com");
+			
+			createGroup("livello1", "Livello 1");
+			createGroup("livello2", "Livello 2");
+			createGroup("livello3", "Livello 3");
+			
+			addUserToGroup("qui", "livello1");
+			addUserToGroup("quo", "livello1");
+			addUserToGroup("qua", "livello1");
+			addUserToGroup("paperino", "livello2");
+			addUserToGroup("paperone", "livello3");
+
 		}
 		
 		boolean stayIn = true;
@@ -70,6 +94,12 @@ public class SegnalERRestClient {
 			}
 		}
 
+	}
+
+	private static void createUserSoft(UserProfile[] users, String username, String name, String surname, String email) {
+		if (!_contains(users, username)) {
+			createUser(username, name, surname, email);
+		}
 	}
 
 	private static boolean _contains(UserProfile[] users, String username) {
@@ -210,6 +240,10 @@ public class SegnalERRestClient {
 		System.out.println("6 ..... Completa task e aggiorna processo");
 		//System.out.println("7 ..... Cancella task(s)");
 		System.out.println("7 ..... Cancella tutte le istanze di processo attive");
+		System.out.println("8.1 ... Crea / aggiorna un gruppo");
+		System.out.println("8.2 ... Cancella un gruppo");
+		System.out.println("9.1 ... Assegna utente a un gruppo");
+		System.out.println("9.2 ... Rimuovi utente da un gruppo");
 		System.out.println("===================================================================================");
 		System.out.println();
 		System.out.println();
@@ -246,6 +280,14 @@ public class SegnalERRestClient {
 //			deleteTask();
 		} else if (choice.equals("7")) {
 			deleteActiveProcessInstances();
+		} else if (choice.equals("8.1")) {
+			_createOrUpdateAGroup();
+		} else if (choice.equals("8.2")) {
+			_deleteAGroup();
+		} else if (choice.equals("9.1")) {
+			_addUserToAGroup();
+		} else if (choice.equals("9.2")) {
+			_removeUserFromAGroup();
 		} else {
 			System.err.println("Valore " + choice + " ignoto o non implementato");
 		}
@@ -707,6 +749,125 @@ public class SegnalERRestClient {
 	private static void _createUser(String username, String firstName, String lastName, String email) {
 		createUser(username, firstName, lastName, email);
 	}
+
+	private static void _createOrUpdateAGroup() throws Exception{
+		String id = readFromInputLine("Id del gruppo: ", null);
+		String na = readFromInputLine("Nome del gruppo: ", null);
+		
+		createOrUpdateGroup(id, na);
+		
+	}
+
+	private static void createOrUpdateGroup(String id, String na) {
+		Group group = getGroupById(id);
+		if (group == null) {
+			System.out.println("Il gruppo " + id + " non esiste, lo creo");
+			createGroup(id, na);
+		} else {
+			System.out.println("Il gruppo " + id + " esiste già, lo aggiorno");
+			updateGroup(id, na);
+		}
+		
+	}
+
+	private static void createGroup(String id, String na) {
+		Group newGroup = new Group();
+		newGroup.id = id;
+		newGroup.name = na;
+		newGroup.type = "Created via API";
+		
+		try {
+			restTemplate.postForEntity("http://localhost:8080/engine-rest/group/create", newGroup, null);
+		} catch (Exception e) {
+			System.err.println("Il gruppo " + id + " probabilmente già esiste");
+		}
+		
+		System.out.println("Gruppo " + id + " creato");
+	}
+
+	private static Group getGroupById(String id) {
+		Map<String, String> vars = new HashMap<String, String>();
+		String result;
+		try {
+			result = restTemplate.getForObject("http://localhost:8080/engine-rest/group/" + id, String.class, vars);
+			Group group = (Group) JsonDataParser.parseObjectOrArray(result, Group.class);
+			return group;
+		} catch (HttpClientErrorException.NotFound e) {
+			System.err.println("Il gruppo " + id + " non esiste");
+		}
+		
+		return null;
+	}
+
+	private static void _deleteAGroup() throws Exception{
+		String id = readFromInputLine("Id del gruppo che vuoi cancellare: ", null);
+		
+		deleteGroup(id);
+		
+	}
+
+	private static void deleteGroup(String id) {
+		restTemplate.delete("http://localhost:8080/engine-rest/group/" + id);
+		
+		System.out.println("Gruppo " + id + " cancellato");
+	}
+	
+	private static void updateGroup(String id, String na) {
+		Group groupToBeUpdated = getGroupById(id);
+		groupToBeUpdated.name = na;
+		
+		restTemplate.put("http://localhost:8080/engine-rest/group/" + id, groupToBeUpdated);
+		
+		System.out.println("Gruppo " + id + " aggiornato");
+	}
+
+	private static void _addUserToAGroup() throws Exception {
+		String idp = readFromInputLine("Username della persona: ", null);
+		String idg = readFromInputLine("Id del gruppo: ", null);
+		
+		addUserToGroup(idp, idg);
+		
+	}
+
+	private static void addUserToGroup(String username, String groupId) {
+		Group g = getGroupById(groupId);
+		if (g == null) {
+			System.err.println("Il gruppo " + groupId + " non esiste");
+			return;
+		}
+		
+		try {
+			restTemplate.put("http://localhost:8080/engine-rest/group/" + groupId + "/members/" + username, null);
+			System.out.println("Gruppo " + groupId + ", assegnato utente " + username);
+		} catch (RestClientException e) {
+			System.err.println("Il gruppo " + groupId + " probabilmente ha già l'utente " + username);
+		}
+	}
+
+	private static void _removeUserFromAGroup() throws Exception {
+		String idp = readFromInputLine("Username della persona: ", null);
+		String idg = readFromInputLine("Id del gruppo: ", null);
+		
+		removeUserFromGroup(idp, idg);
+		
+	}
+
+	private static void removeUserFromGroup(String username, String groupId) {
+		Group g = getGroupById(groupId);
+		if (g == null) {
+			System.err.println("Il gruppo " + groupId + " non esiste");
+			return;
+		}
+		
+		try {
+			restTemplate.delete("http://localhost:8080/engine-rest/group/" + groupId + "/members/" + username);
+			System.out.println("Gruppo " + groupId + ", rimosso utente " + username);
+		} catch (RestClientException e) {
+			System.err.println("Il gruppo " + groupId + " probabilmente non aveva l'utente " + username);
+		}
+		
+	}
+
 
 
 }
