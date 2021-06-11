@@ -15,6 +15,16 @@ Usare PostgreSQL com DB
 	- ottenuto l'errore "Consider defining a bean of type 'org.springframework.transaction.PlatformTransactionManager' in your configuration" al primo run,
 	  risolto mettendo la dipendenza da spring-boot-starter-jdbc, seguendo le indicazioni:
 	  https://forum.camunda.org/t/camunda-spring-boot-starter-ignores-spring-datasource-url-pointing-to-h2-file-based/7909
+- Accesso al DB Postgres NON locale:
+  - Verificare avvio VPN Maps (Mobile VPN)
+  - Comando 
+       ssh -L 5432:192.168.99.100:30010 segnaler@192.168.9.248
+  - Utente/password = segnaler/segnaler
+  - puntare al DB così: jdbc:postgresql://127.0.0.1:5432/
+  - creare un nuovo utente:
+		create database segnalercamundadb;
+		create user segnalercamunda with encrypted password 'segnalercamunda';
+		grant all privileges on database segnalercamundadb to segnalercamunda;
 
 
 

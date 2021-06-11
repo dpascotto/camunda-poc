@@ -16,3 +16,7 @@
   - API utenti, gruppi etc.
   - gli utenti nuovi non devono essere come l'admin
   - associazione 'corsia' con il gruppo
+  
++ Richiedere autenticazione come admin per le api (NON è necessario perché non verranno esposte)
+
+- gestione del flusso al gateway

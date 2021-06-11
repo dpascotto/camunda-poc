@@ -19,6 +19,7 @@ import it.mapsgroup.segnaler.camunda.rest.client.vo.Modifications;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.ProcessA1Request;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.ProcessA2Request;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.ProcessInstance;
+import it.mapsgroup.segnaler.camunda.rest.client.vo.ProcessRequest;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.Task;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.TaskWithParentProcess;
 import it.mapsgroup.segnaler.camunda.rest.client.vo.User;
@@ -41,9 +42,9 @@ public class SegnalERRestClient {
 
 	public static void main(String[] args) {
 		restTemplate = new RestTemplate();
-		
+
+		/*
 		boolean auto = false;
-		
 		if (auto) {
 			// Faccio partire 2 istanze del processo ProcessA1
 			startProcessA1("Business key: assegnato a Pino", "Pino", "Pino, fai andare le cose", true);
@@ -59,6 +60,8 @@ public class SegnalERRestClient {
 			assignTask(tasks[0], "level1");
 			assignTask(tasks[1], "level2");
 		}
+		*/
+		
 		
 		/*
 		 * Auto-2: creazione dei gruppi, degli utenti e assegnazione degli utenti ai gruppi
@@ -71,18 +74,28 @@ public class SegnalERRestClient {
 			createUserSoft(users, "quo", "Quo", "Paolino", "quo@disney.com");
 			createUserSoft(users, "qua", "Qua", "Paolino", "qua@disney.com");
 			createUserSoft(users, "paperino", "Paperino", "Paolino", "paperino@disney.com");
+			createUserSoft(users, "paperina", "Paperina", "Paperinella", "paperina@disney.com");
 			createUserSoft(users, "paperone", "Paperon", "De' Paperoni", "paperone@disney.com");
 			
-			createGroup("livello1", "Livello 1");
-			createGroup("livello2", "Livello 2");
-			createGroup("livello3", "Livello 3");
+			createGroup("A1L1", "Processo A1, Livello 1");
+			createGroup("A1L2", "Processo A1, Livello 2");
+			createGroup("A1L3", "Processo A1, Livello 3");
 			
-			addUserToGroup("qui", "livello1");
-			addUserToGroup("quo", "livello1");
-			addUserToGroup("qua", "livello1");
-			addUserToGroup("paperino", "livello2");
-			addUserToGroup("paperone", "livello3");
+			addUserToGroup("qui", "A1L1");
+			addUserToGroup("quo", "A1L1");
+			addUserToGroup("qua", "A1L1");
+			addUserToGroup("paperino", "A1L2");
+			addUserToGroup("paperina", "A1L2");
+			addUserToGroup("paperone", "A1L3");
 
+		}
+		
+		/*
+		 * Auto-3: flusso del processo A1
+		 */
+		boolean auto3 = true;
+		if (auto3) {
+			//startProcessA1(null, args);
 		}
 		
 		boolean stayIn = true;
@@ -120,8 +133,8 @@ public class SegnalERRestClient {
 	/*
 	 * Ritorna i task ATTIVI (delete_reason_ is null)
 	 */
-	private static Task[] listTasks() {
-		Task[] tasks = listAllTasks();
+	private static Task[] listTasks() throws Exception {
+		Task[] tasks = _listAllTasks();
 		System.out.println("\r\n\r\n\r\nCi sono " + tasks.length + " task");
 		for (Task task : tasks) {
 			System.out.println(task);
@@ -140,15 +153,30 @@ public class SegnalERRestClient {
 	}
 	
 	private static TaskWithParentProcess getTaskDetail(String taskId) {
+		return getTaskDetail(taskId, null);
+	}
+	
+	private static TaskWithParentProcess getTaskDetail(String taskId, String candidateUserId) {
 		try {
-			String taskJson = restTemplate.getForObject("http://localhost:8080/engine-rest/task?taskId=" + taskId, String.class);
+			String taskJson = null;
+			if (candidateUserId == null) {
+				System.out.println("Cerco il task avente id = " + taskId);
+				taskJson = restTemplate.getForObject("http://localhost:8080/engine-rest/task?taskId=" + taskId, String.class);
+			} else {
+				System.out.println("Cerco il task avente id = " + taskId + " e verifico che sia assegnato/assegnabile  a " + candidateUserId);
+				taskJson = restTemplate.getForObject("http://localhost:8080/engine-rest/task?taskId=" + taskId + "&candidateUser=" + candidateUserId, String.class);
+			}
 			
 			TaskWithParentProcess[] tasks = (TaskWithParentProcess[]) JsonDataParser.parseObjectOrArray(taskJson, TaskWithParentProcess[].class);
 			
-			if (tasks == null || tasks.length != 1) {
-				throw new RuntimeException("Paer il taskId " + taskId + " mi aspettavo un task invece ..." );
+			if (tasks == null || tasks.length == 0) {
+				throw new RuntimeException("Il task " + taskId + " non esiste oppure non è assegnabile a " + candidateUserId);
 			}
-			
+
+			if (tasks.length > 1) {
+				throw new RuntimeException("Il task " + taskId + " ha trovato troppi task (dai, impossibile)");
+			}
+
 			TaskWithParentProcess task = tasks[0];
 			//ProcessCustomVariables processCustomVariables = getProcessCustomVariables(task.processInstanceId);
 			
@@ -269,9 +297,9 @@ public class SegnalERRestClient {
 		} else if (choice.equals("4a")) {
 			getUser();
 		} else if (choice.equals("4b")) {
-			createUser();
+			_createUser();
 		} else if (choice.equals("5")) {
-			assignTaskToUser();
+			_assignTaskToUser();
 		} else if (choice.equals("6")) {
 			//updateTask();
 			//updateProcess();
@@ -295,6 +323,7 @@ public class SegnalERRestClient {
 		return true;
 	}
 		
+	@Deprecated
 	private static String readFromInputLine(String hint) throws Exception {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
@@ -403,11 +432,14 @@ public class SegnalERRestClient {
 		return users;
 	}
 
-	private static void assignTaskToUser() throws Exception {
-		String taskKey = readFromInputLine("Inserisci l'id del task: ");
-		String userId = readFromInputLine("Inserisci l'id dell'utente: ");
+	private static void _assignTaskToUser() throws Exception {
+		String taskKey = readFromInputLine("Inserisci l'id del task: ", null);
+		String userId = readFromInputLine("Inserisci l'id dell'utente: ", null);
 		
-		Task task = getTaskDetail(taskKey);
+		if (taskKey == null) throw new RuntimeException("ID task obbligatorio");
+		if (userId == null) throw new RuntimeException("Username obbligatoria");
+		
+		Task task = getTaskDetail(taskKey, userId);
 		
 		assignTask(task, userId);
 	}
@@ -436,7 +468,7 @@ public class SegnalERRestClient {
 	/*
 	 * https://docs.camunda.org/manual/7.15/reference/rest/user/post-create/
 	 */
-	private static void createUser(String userId, String firstName, String lastName, String email) {
+	private static void createUserWithDefualtCredentials(String userId, String firstName, String lastName, String email) {
 		User user = new User();
 		UserProfile userProfile = new UserProfile();
 		userProfile.id = userId;
@@ -466,12 +498,12 @@ public class SegnalERRestClient {
 
 	private static void _startProcessA1() throws Exception {
 		
-		String bk = readFromInputLine("Valore della business key", "Business Key " + _random(10, 99));
-//		String ns = readFromInputLine("Nome Soggetto", "Nome " + _random(100, 999));
-//		String ts = readFromInputLine("Testo della segnalazione", "Non è andata bene la " + _random(1000, 9999));
+		String bk = readFromInputLine("Native Object ID", "NativeObjectID_ " + _random(10, 99));
+		String nm = readFromInputLine("Nome", "Diego");
+		String sn = readFromInputLine("Cognome", "Pascotto");
+		String in = readFromInputLine("Indirizzo", "Via Ferrara, " + _random(1, 9) + ", 431" + _random(10, 99) + " Parma");
 		
-		//startProcessA1(bk, ns, ts, true);
-		startProcessA1(bk, new ASimpleBusinessClass("Diego", "Pascotto", "Via Ferrara 7"));
+		startProcessA1(bk, new ASimpleBusinessClass(nm, sn, in));
 		
 		System.out.println("Processo A1 avviato");
 	}
@@ -521,7 +553,7 @@ public class SegnalERRestClient {
 	}
 
 	@Deprecated
-	private static void startProcessA1(String bizKey, String nomeSoggetto, String testoSegnalazione, boolean eUnaFigata) {
+	private static void startProcessA1_OLD(String bizKey, String nomeSoggetto, String testoSegnalazione, boolean eUnaFigata) {
 		try {
 			String taskKey = "ProcessA1";
 			ProcessA1Request a1 = new ProcessA1Request();
@@ -539,7 +571,7 @@ public class SegnalERRestClient {
 		}
 	}
 
-	private static void startProcessA1(String bizKey, Object myReadOnlyParameters) {
+	private static void startProcessA1_OLD(String bizKey, Object myReadOnlyParameters) {
 		try {
 			String taskKey = "ProcessA1";
 			ProcessA1Request a1 = new ProcessA1Request();
@@ -555,6 +587,24 @@ public class SegnalERRestClient {
 			e.printStackTrace();
 		}
 	}
+	
+	private static void startProcessA1(String nativeObjectId, Object myObject) {
+		try {
+			String processKey = "ProcessA1";
+			ProcessRequest a1 = new ProcessRequest(nativeObjectId, "A1");
+			
+			a1.addBusinessInputVariables(myObject);
+			
+			
+			ResponseEntity<it.mapsgroup.segnaler.camunda.rest.client.vo.Process> response = restTemplate.postForEntity("http://localhost:8080/engine-rest/process-definition/key/" + processKey + "/start", a1, null);
+			System.out.println("ProcessA1 created: " + response);
+		} catch (Exception e) {
+			System.err.println("Impossibile fare partire il processo A1: " + e.getMessage());
+			e.printStackTrace();
+		}
+	}
+
+
 
 	private static void startProcessA2(String nativeObjectId, Object myObject) {
 		try {
@@ -571,11 +621,31 @@ public class SegnalERRestClient {
 			e.printStackTrace();
 		}
 	}
+	
+	public static Task[] _listAllTasks() throws Exception {
+		String userId = readFromInputLine("Inserisci lo username candidato (vuoto per vedere tutti i task): ", "");
+		
+		if (userId != null && !userId.equals("")) {
+			return listAllTasksForUser(userId);			
+		} else {
+			return listAllTasks();
+		}
+	}
 
 	public static Task[] listAllTasks() {
 		Map<String, String> vars = new HashMap<String, String>();
 		
 		String result = restTemplate.getForObject("http://localhost:8080/engine-rest/task", String.class, vars);
+		
+		//System.out.println(JsonFormatter.convertFlatJsonToFormattedJson(result));
+		
+		return (Task[])JsonDataParser.parseObjectOrArray(result, Task[].class);
+	}
+	
+	public static Task[] listAllTasksForUser(String user) {
+		Map<String, String> vars = new HashMap<String, String>();
+		
+		String result = restTemplate.getForObject("http://localhost:8080/engine-rest/task?candidateUser=" + user, String.class, vars);
 		
 		//System.out.println(JsonFormatter.convertFlatJsonToFormattedJson(result));
 		
@@ -694,7 +764,7 @@ public class SegnalERRestClient {
 			System.err.println("L'utente non esiste, crearlo [Y/N]?");
 			String choice = readFromInputLine("L'utente non esiste, crearlo? [Y/N] ");
 			if (choice.equalsIgnoreCase("Y")) {
-				_createUser(username, "_" + username, "_", null);
+				createUser(username, "_" + username, "_", null);
 				user = _getUser(username);
 			} else if (choice.equalsIgnoreCase("N")) {
 				System.out.println("Utente " + username + " non creato");
@@ -731,23 +801,23 @@ public class SegnalERRestClient {
 		return user;
 	}
 
-	public static void createUser() throws Exception {
+	public static void _createUser() throws Exception {
 		String username = readFromInputLine("Username: ", null);
 		String firstName = readFromInputLine("First name: ", "?");
 		String lastName = readFromInputLine("Last name: ", "?");
 		String email = readFromInputLine("email address: ", "?");
 		
-		_createUser(username, firstName, lastName, email);
+		createUser(username, firstName, lastName, email);
 		
 		System.out.println("User " + username + " created");
 	}
 
-	private static void _createUser(String username) {
-		createUser(username, null, null, null);
+	private static void createUser(String username) {
+		createUserWithDefualtCredentials(username, null, null, null);
 	}
 
-	private static void _createUser(String username, String firstName, String lastName, String email) {
-		createUser(username, firstName, lastName, email);
+	private static void createUser(String username, String firstName, String lastName, String email) {
+		createUserWithDefualtCredentials(username, firstName, lastName, email);
 	}
 
 	private static void _createOrUpdateAGroup() throws Exception{

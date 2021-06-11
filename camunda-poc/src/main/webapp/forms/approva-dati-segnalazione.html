@@ -75,7 +75,29 @@
 		</tr>
 
 		
-   		<tr>
+		<!-- 
+			Questa variabile funziona anche solo se è definita localmente nel diagramma e 
+			non nella corrispondente classe Java
+		-->
+  		<tr>
+			<td>
+				<label for="isValid">Valida?</label>
+		</tr>
+		<tr>
+			<td>
+			
+			
+			<input type="checkbox" 
+				id="isValid"
+				cam-variable-type="Boolean"
+				cam-variable-name="isValid"
+				name="isValid"
+				
+          		>			
+			</td>
+		</tr>
+  
+  		<tr>
 			<td>
 				<label for="A1L2Comment">Commento</label>
 		</tr>
@@ -85,9 +107,8 @@
 					name="comment"
          			cam-variable-name="comment"
          			cam-variable-type="String"
-          			readonly
+          			readonly_NO
          			size=200
-           			STYLE="background-color: #B3AFAE;"
           		>			
 			</td>
 		</tr>

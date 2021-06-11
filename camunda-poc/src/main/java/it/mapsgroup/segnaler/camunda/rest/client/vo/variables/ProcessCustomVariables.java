@@ -25,12 +25,16 @@ public class ProcessCustomVariables {
 	 */
 	public CustomVariable businessInputAttributes;
 	
+	// TODO verificare se è il caso di spostarla in una sottoclasse
+	public CustomVariable comment;
+	
 	@Override
 	public String toString() {
 		String indentedColumn = ""
 				+ "\r\n\tnativeObjectId .................. " + nativeObjectId
 				+ "\r\n\tprocessType ..................... " + processType
-				+ "\r\n\tbusinessInputAttributes ......... " + businessInputAttributes;
+				+ "\r\n\tbusinessInputAttributes ......... " + businessInputAttributes
+				+ "\r\n\tcomment ......................... " + comment;
 		
 		return indentedColumn;
 	}
